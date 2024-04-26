@@ -18,5 +18,7 @@ public interface PostMapper {
 
     @Mapping(target="userName",source="user.username")
     @Mapping(target="communityName",source="community.communityName")
+    @Mapping(target="votes",source="votes")
+    @Mapping(target="comments",source="comments")
     PostResponseDto mapPostToDto(Post post);
 }

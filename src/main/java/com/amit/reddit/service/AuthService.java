@@ -12,7 +12,6 @@ import com.amit.reddit.model.User;
 import com.amit.reddit.model.VerificationToken;
 import com.amit.reddit.repository.UserRepository;
 import com.amit.reddit.repository.VerificationTokenRepository;
-import io.jsonwebtoken.Jwt;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,6 +106,11 @@ public class AuthService {
                 getContext().getAuthentication().getName();
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new redditUserNotFoundException(username));
+    }
+
+    protected boolean isUserLoggedIn() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth!=null && auth.isAuthenticated() && auth.getPrincipal() instanceof UserDetails;
     }
 
     private User getUserFromUsername(String username){

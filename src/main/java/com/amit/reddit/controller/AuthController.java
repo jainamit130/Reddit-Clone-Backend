@@ -34,13 +34,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto> login(@RequestBody LoginDto loginDto) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {
-        return new ResponseEntity<>(authService.login(loginDto),HttpStatus.OK);
+    public ResponseDto login(@RequestBody LoginDto loginDto) throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {
+        return authService.login(loginDto);
     }
 
     @PostMapping("/refreshToken")
-    public ResponseEntity<ResponseDto> refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
-        return new ResponseEntity<>(authService.refreshToken(refreshTokenRequest),HttpStatus.OK);
+    public ResponseDto refreshToken(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest){
+        return authService.refreshToken(refreshTokenRequest);
     }
 
     @PostMapping("/logout")

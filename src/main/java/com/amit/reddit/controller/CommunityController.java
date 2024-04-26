@@ -21,13 +21,38 @@ public class CommunityController {
         return communityService.create(communityDto);
     }
 
-    @GetMapping("/get/{id}")
+    @PostMapping("/join")
+    public CommunityDto join(@RequestBody CommunityDto communityDto){
+        return communityService.joinCommunity(communityDto);
+    }
+
+    @PostMapping("/leave")
+    public CommunityDto leave(@RequestBody CommunityDto communityDto){
+        return communityService.leaveCommunity(communityDto);
+    }
+
+    @GetMapping("/getCommunityOfPost/{postId}")
+    public ResponseEntity<CommunityDto> getCommunityOfPost(@PathVariable Long postId){
+        return new ResponseEntity<CommunityDto>(communityService.getCommunityOfPost(postId),HttpStatus.OK);
+    }
+
+    @GetMapping("/getCommunity/{id}")
     public ResponseEntity<CommunityDto> getCommunity(@PathVariable Long id){
         return new ResponseEntity<>(communityService.getCommunity(id),HttpStatus.OK);
+    }
+
+    @GetMapping("/getCommunityWithPosts/{id}")
+    public ResponseEntity<CommunityDto> getCommunityWithPosts(@PathVariable Long id){
+        return new ResponseEntity<>(communityService.getCommunityWithPosts(id),HttpStatus.OK);
     }
 
     @GetMapping("/getAllCommunities")
     public ResponseEntity<List<CommunityDto>> getAllCommunities(){
         return new ResponseEntity<>(communityService.getAll(), HttpStatus.OK);
+    }
+
+    @GetMapping("/getUserCommunities")
+    public ResponseEntity<List<CommunityDto>> getUserCommunities(){
+        return new ResponseEntity<>(communityService.getUserCommunities(), HttpStatus.OK);
     }
 }

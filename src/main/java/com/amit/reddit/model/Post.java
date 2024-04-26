@@ -1,5 +1,6 @@
 package com.amit.reddit.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -22,11 +23,10 @@ public class Post {
     @NotBlank(message = "Post Name cannot be empty or Null")
     private String postName;
     @Nullable
-    private String url;
-    @Nullable
     @Lob
+    @Column(length = 1024)
     private String description;
-    private Integer vote;
+    private Integer votes;
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="userId",referencedColumnName = "userId")
     private User user;
@@ -34,4 +34,5 @@ public class Post {
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="communityId",referencedColumnName = "communityId")
     private Community community;
+    private Integer comments;
 }

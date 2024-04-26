@@ -1,5 +1,6 @@
 package com.amit.reddit.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -25,6 +26,8 @@ public class User implements UserDetails {
     private Long userId;
     @NotBlank(message = "Username is required")
     private String username;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Community> communities;
     @NotBlank(message = "Password is required")
     private String password;
     @Email
@@ -34,6 +37,10 @@ public class User implements UserDetails {
     private boolean verified;
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    public void addCommunity(Community community){
+        communities.add(community);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -58,5 +65,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return verified;
+    }
+
+    public void leaveCommunity(Community community) {
+        communities.remove(community);
     }
 }

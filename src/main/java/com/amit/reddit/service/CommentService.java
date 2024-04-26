@@ -9,9 +9,7 @@ import com.amit.reddit.repository.CommentRepository;
 import com.amit.reddit.repository.PostRepository;
 import com.amit.reddit.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +35,8 @@ public class CommentService {
         User user=authService.getCurrentUser();
         Comment comment = commentMapper.mapDtoToComment(commentDto,post,user);
         commentRepository.save(comment);
+        post.setComments(post.getComments()+1);
+        postRepository.save(post);
         NotificationEmail notificationEmail= new NotificationEmail("u/"+user.getUsername()+" commented in r/"+post.getCommunity().getCommunityName(),authService.getCurrentUser().getEmail(),comment.getComment()+"/n"+VIEW_REPLY);
         sendCommentNotificationEmail(notificationEmail);
     }
@@ -61,5 +61,22 @@ public class CommentService {
 
     public void sendCommentNotificationEmail(NotificationEmail notificationEmail){
         mailService.sendMail(notificationEmail);
+    }
+
+    public void deleteComment(Long postId,Long commentId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new redditException("Sorry! The post no longer exists"));
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new redditException("Comment no longer exists!!"));
+        //Check if the comment belongs to the User who requested
+        User user= authService.getCurrentUser();
+        if(user.equals(comment.getUser())){
+            commentRepository.deleteById(commentId);
+            post.setComments(post.getComments()-1);
+            postRepository.save(post);
+        } else {
+            throw new redditException("No such comment exists for user: "+user.getUsername());
+        }
+        return;
     }
 }

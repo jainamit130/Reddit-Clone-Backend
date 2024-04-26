@@ -21,20 +21,29 @@ public class VoteService {
     public void vote(VoteDto voteDto) {
         Post post = postRepository.findById(voteDto.getPostId())
                 .orElseThrow(() -> new redditException("Sorry! The post no longer exists."));
-        Vote vote = voteRepository.findByPostAndUser(post,authService.getCurrentUser());
-        if(voteDto.getVoteType().equals(vote.getVoteType()))
-            throw new redditException("You have already "+vote.getVoteType()+"D!");
-        Integer voteCount = post.getVote();
-        if(voteDto.getVoteType().equals(VoteType.UPVOTE)) {
-            voteCount += 2;
-            vote.setVoteType(VoteType.UPVOTE);
+        Vote vote = voteRepository.findByPostAndUser(post,authService.getCurrentUser())
+                .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
+        Integer voteCount = post.getVotes();
+        if(voteDto.getVoteType().equals(vote.getVoteType())) {
+            if(voteDto.getVoteType().equals(VoteType.UPVOTE))
+                voteCount -= 1;
+            else if(voteDto.getVoteType().equals(VoteType.DOWNVOTE))
+                voteCount += 1;
+            vote.setVoteType(VoteType.NOVOTE);
         }
-        if(voteDto.getVoteType().equals(VoteType.DOWNVOTE)) {
-            voteCount -= 2;
-            vote.setVoteType(VoteType.DOWNVOTE);
+        else {
+            if (voteDto.getVoteType().equals(VoteType.UPVOTE)) {
+                if(vote.getVoteType()!=VoteType.NOVOTE) voteCount += 2;
+                else voteCount += 1;
+                vote.setVoteType(VoteType.UPVOTE);
+            } else {
+                if (vote.getVoteType()!=VoteType.NOVOTE) voteCount -= 2;
+                else voteCount -= 1;
+                vote.setVoteType(VoteType.DOWNVOTE);
+            }
         }
         voteRepository.save(vote);
-        post.setVote(voteCount);
+        post.setVotes(voteCount);
         postRepository.save(post);
     }
 }

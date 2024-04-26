@@ -35,7 +35,11 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("reddit/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"reddit/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "reddit/community/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/reddit/community/getUserCommunities").authenticated()
+                        .requestMatchers("/v3/api-docs/**","/swagger-ui/**")
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

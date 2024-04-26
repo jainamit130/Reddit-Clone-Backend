@@ -31,4 +31,11 @@ public class CommentController {
     public ResponseEntity<List<CommentDto>> getAllUserComments(@RequestParam(name = "username") String username){
         return new ResponseEntity(commentService.getAllUserComments(username),HttpStatus.OK);
     }
+
+    @PostMapping("deleteComment")
+    public ResponseEntity deleteComment(@RequestParam(name = "postId") Long postId,@RequestParam(name="commentId") Long commentId){
+        commentService.deleteComment(postId,commentId);
+        return new ResponseEntity(HttpStatus.OK);
+
+    }
 }

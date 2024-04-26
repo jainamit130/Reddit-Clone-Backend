@@ -31,32 +31,50 @@ public class PostService {
     private final AuthService authService;
     private final PostMapper postMapper;
 
-    public Post create(PostDto postDto) {
+    public PostResponseDto create(PostDto postDto) {
         String communityName=postDto.getCommunityName();
         Community community = communityRepository.findByCommunityName(communityName)
                 .orElseThrow(() -> new communityNotFoundException(communityName));
 
         User currentUser = authService.getCurrentUser();
         Post post=postMapper.mapDtoToPost(postDto,community,currentUser);
-        post.setVote(1);//On creating the post the vote is set by defualt to 1
+        post.setVotes(1);//On creating the post the vote is set by defualt to 1
+        post.setComments(0);
         postRepository.save(post);
+        community.addPost(post);
+        communityRepository.save(community);
         Vote defaultVote=Vote.builder().post(post).user(currentUser).voteType(VoteType.UPVOTE).build();
         voteRepository.save(defaultVote);
-        return post;
+        return postMapper.mapPostToDto(post);
+    }
+
+    private VoteType getUserVote(Post post){
+        Vote vote = Vote.builder().voteType(VoteType.NOVOTE).build();
+        if(authService.isUserLoggedIn()) {
+            vote = voteRepository.findByPostAndUser(post, authService.getCurrentUser())
+                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).build());
+        }
+        return vote.getVoteType();
     }
 
     @Transactional(readOnly = true)
     public PostResponseDto getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new redditException("Post not found!"));
-        return postMapper.mapPostToDto(post);
+        PostResponseDto postResponse = postMapper.mapPostToDto(post);
+        postResponse.setCurrentVote(getUserVote(post));
+        return postResponse;
     }
 
     @Transactional(readOnly = true)
     public List<PostResponseDto> getAllPosts() {
         List<PostResponseDto> posts=postRepository.findAll()
                 .stream()
-                .map(postMapper::mapPostToDto)
+                .map(post -> {
+                    PostResponseDto postResponse = postMapper.mapPostToDto(post);
+                    postResponse.setCurrentVote(getUserVote(post));
+                    return postResponse;
+                })
                 .collect(Collectors.toList());
         return posts;
     }
@@ -67,7 +85,11 @@ public class PostService {
                 .orElseThrow(() -> new communityNotFoundException(id.toString()));
         List<PostResponseDto> posts=postRepository.findAllByCommunity(community)
                 .stream()
-                .map(postMapper::mapPostToDto)
+                .map(post -> {
+                    PostResponseDto postResponse = postMapper.mapPostToDto(post);
+                    postResponse.setCurrentVote(getUserVote(post));
+                    return postResponse;
+                })
                 .collect(Collectors.toList());
         return posts;
     }
@@ -78,7 +100,11 @@ public class PostService {
                 .orElseThrow(() -> new redditUserNotFoundException(username));
         List<PostResponseDto> posts=postRepository.findAllByUser(user)
                 .stream()
-                .map(postMapper::mapPostToDto)
+                .map(post -> {
+                    PostResponseDto postResponse = postMapper.mapPostToDto(post);
+                    postResponse.setCurrentVote(getUserVote(post));
+                    return postResponse;
+                })
                 .collect(Collectors.toList());
         return posts;
     }

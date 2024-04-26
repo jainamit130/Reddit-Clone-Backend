@@ -5,7 +5,7 @@ import com.amit.reddit.exceptions.redditException;
 import java.util.Arrays;
 
 public enum VoteType {
-    UPVOTE(1), DOWNVOTE(-1),
+    UPVOTE(1),NOVOTE(0), DOWNVOTE(-1),
     ;
 
     private int direction;
