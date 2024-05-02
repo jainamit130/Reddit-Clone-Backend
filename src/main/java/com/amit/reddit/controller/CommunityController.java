@@ -1,6 +1,7 @@
 package com.amit.reddit.controller;
 
 import com.amit.reddit.dto.CommunityDto;
+import com.amit.reddit.dto.CommunitySearchDto;
 import com.amit.reddit.service.CommunityService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,14 +22,19 @@ public class CommunityController {
         return communityService.create(communityDto);
     }
 
-    @PostMapping("/join")
-    public CommunityDto join(@RequestBody CommunityDto communityDto){
-        return communityService.joinCommunity(communityDto);
+    @GetMapping("/communitySearch/{startsWith}")
+    public ResponseEntity<List<CommunitySearchDto>> communitySearch(@PathVariable String startsWith){
+        return new ResponseEntity<List<CommunitySearchDto>>(communityService.search(startsWith),HttpStatus.OK);
     }
 
-    @PostMapping("/leave")
-    public CommunityDto leave(@RequestBody CommunityDto communityDto){
-        return communityService.leaveCommunity(communityDto);
+    @PostMapping("/join/{communityId}")
+    public CommunityDto join(@PathVariable Long communityId){
+        return communityService.joinCommunity(communityId);
+    }
+
+    @PostMapping("/leave/{communityId}")
+    public CommunityDto leave(@PathVariable Long communityId){
+        return communityService.leaveCommunity(communityId);
     }
 
     @GetMapping("/getCommunityOfPost/{postId}")

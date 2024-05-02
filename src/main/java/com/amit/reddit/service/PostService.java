@@ -1,6 +1,6 @@
 package com.amit.reddit.service;
 
-import com.amit.reddit.dto.PostDto;
+import com.amit.reddit.dto.PostRequestDto;
 import com.amit.reddit.dto.PostResponseDto;
 import com.amit.reddit.exceptions.communityNotFoundException;
 import com.amit.reddit.exceptions.redditException;
@@ -31,7 +31,7 @@ public class PostService {
     private final AuthService authService;
     private final PostMapper postMapper;
 
-    public PostResponseDto create(PostDto postDto) {
+    public PostResponseDto create(PostRequestDto postDto) {
         String communityName=postDto.getCommunityName();
         Community community = communityRepository.findByCommunityName(communityName)
                 .orElseThrow(() -> new communityNotFoundException(communityName));
@@ -45,7 +45,8 @@ public class PostService {
         communityRepository.save(community);
         Vote defaultVote=Vote.builder().post(post).user(currentUser).voteType(VoteType.UPVOTE).build();
         voteRepository.save(defaultVote);
-        return postMapper.mapPostToDto(post);
+        PostResponseDto postResponse = postToPostResponse(post);
+        return postResponse;
     }
 
     private VoteType getUserVote(Post post){
@@ -61,8 +62,7 @@ public class PostService {
     public PostResponseDto getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new redditException("Post not found!"));
-        PostResponseDto postResponse = postMapper.mapPostToDto(post);
-        postResponse.setCurrentVote(getUserVote(post));
+        PostResponseDto postResponse = postToPostResponse(post);
         return postResponse;
     }
 
@@ -71,9 +71,7 @@ public class PostService {
         List<PostResponseDto> posts=postRepository.findAll()
                 .stream()
                 .map(post -> {
-                    PostResponseDto postResponse = postMapper.mapPostToDto(post);
-                    postResponse.setCurrentVote(getUserVote(post));
-                    return postResponse;
+                    return postToPostResponse(post);
                 })
                 .collect(Collectors.toList());
         return posts;
@@ -86,9 +84,7 @@ public class PostService {
         List<PostResponseDto> posts=postRepository.findAllByCommunity(community)
                 .stream()
                 .map(post -> {
-                    PostResponseDto postResponse = postMapper.mapPostToDto(post);
-                    postResponse.setCurrentVote(getUserVote(post));
-                    return postResponse;
+                    return postToPostResponse(post);
                 })
                 .collect(Collectors.toList());
         return posts;
@@ -101,11 +97,15 @@ public class PostService {
         List<PostResponseDto> posts=postRepository.findAllByUser(user)
                 .stream()
                 .map(post -> {
-                    PostResponseDto postResponse = postMapper.mapPostToDto(post);
-                    postResponse.setCurrentVote(getUserVote(post));
-                    return postResponse;
+                    return postToPostResponse(post);
                 })
                 .collect(Collectors.toList());
         return posts;
+    }
+
+    public PostResponseDto postToPostResponse(Post post) {
+        PostResponseDto postResponse = postMapper.mapPostToDto(post);
+        postResponse.setCurrentVote(getUserVote(post));
+        return postResponse;
     }
 }

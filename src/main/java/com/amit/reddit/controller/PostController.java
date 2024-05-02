@@ -1,8 +1,7 @@
 package com.amit.reddit.controller;
 
-import com.amit.reddit.dto.PostDto;
+import com.amit.reddit.dto.PostRequestDto;
 import com.amit.reddit.dto.PostResponseDto;
-import com.amit.reddit.model.Post;
 import com.amit.reddit.service.PostService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +18,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/create")
-    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostDto postDto){
+    public ResponseEntity<PostResponseDto> createPost(@RequestBody PostRequestDto postDto){
         return new ResponseEntity<PostResponseDto>(postService.create(postDto),HttpStatus.CREATED);
     }
 

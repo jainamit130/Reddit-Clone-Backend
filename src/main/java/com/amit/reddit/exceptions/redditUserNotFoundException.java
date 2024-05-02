@@ -6,4 +6,8 @@ public class redditUserNotFoundException extends UsernameNotFoundException {
     public redditUserNotFoundException(String username) {
         super("User name not found - " + username);
     }
+
+    public redditUserNotFoundException() {
+        super("User name not found");
+    }
 }

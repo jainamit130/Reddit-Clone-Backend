@@ -20,19 +20,28 @@ public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long postId;
+
     @NotBlank(message = "Post Name cannot be empty or Null")
     private String postName;
+
     @Nullable
     @Lob
     @Column(length = 1024)
     private String description;
+
     private Integer votes;
+
+    @JsonIgnore
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="userId",referencedColumnName = "userId")
     private User user;
+
     private Instant creationDate;
+
+    @JsonIgnore
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="communityId",referencedColumnName = "communityId")
     private Community community;
+
     private Integer comments;
 }

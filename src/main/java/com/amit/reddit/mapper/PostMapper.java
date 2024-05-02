@@ -1,10 +1,11 @@
 package com.amit.reddit.mapper;
 
-import com.amit.reddit.dto.PostDto;
+import com.amit.reddit.dto.PostRequestDto;
 import com.amit.reddit.dto.PostResponseDto;
 import com.amit.reddit.model.Community;
 import com.amit.reddit.model.Post;
 import com.amit.reddit.model.User;
+import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -14,8 +15,9 @@ public interface PostMapper {
     @Mapping(target="description",source="postDto.description")
     @Mapping(target="user",source="user")
     @Mapping(target="community",source="community")
-    Post mapDtoToPost(PostDto postDto, Community community, User user);
+    Post mapDtoToPost(PostRequestDto postDto, Community community, User user);
 
+    @InheritInverseConfiguration
     @Mapping(target="userName",source="user.username")
     @Mapping(target="communityName",source="community.communityName")
     @Mapping(target="votes",source="votes")

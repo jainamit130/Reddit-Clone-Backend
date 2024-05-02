@@ -24,17 +24,33 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
+
     @NotBlank(message = "Username is required")
     private String username;
-    @OneToMany(fetch = FetchType.LAZY)
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY)
     private List<Community> communities;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "creatorUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Community> createdCommunities;
+
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Post> posts;
+
     @NotBlank(message = "Password is required")
     private String password;
+
     @Email
     @NotEmpty(message = "Email is required")
     private String email;
+
     private Instant creationDate;
+
     private boolean verified;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 

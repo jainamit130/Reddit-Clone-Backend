@@ -1,26 +1,17 @@
 package com.amit.reddit.dto;
 
-import com.amit.reddit.model.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CommunityDto {
-    private Long communityId;
+public class CommunitySearchDto {
     @NotBlank(message = "Community name is required")
     private String communityName;
-    private List<PostResponseDto> posts;
-    private User user;
-    @NotBlank(message = "Description is required")
-    private String description;
-    private Integer numberOfPosts;
     private Integer numberOfMembers;
 }

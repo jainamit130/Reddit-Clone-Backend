@@ -2,7 +2,6 @@ package com.amit.reddit.mapper;
 
 import com.amit.reddit.dto.CommunityDto;
 import com.amit.reddit.model.Community;
-import com.amit.reddit.model.Post;
 import org.mapstruct.InheritInverseConfiguration;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -13,6 +12,8 @@ import java.util.List;
 public interface CommunityMapper {
 
     @Mapping(target = "communityId", expression = "java(mapCommunityId(community.getCommunityId()))")
+    @Mapping(target = "user",source = "creatorUser")
+    @Mapping(target = "posts",ignore = true)
     CommunityDto mapCommunityToDto(Community community);
 
     default Long mapCommunityId(Long communityId) {
