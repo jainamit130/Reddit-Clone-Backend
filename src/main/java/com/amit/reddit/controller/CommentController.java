@@ -27,6 +27,11 @@ public class CommentController {
         return new ResponseEntity(commentService.getAllPostComments(postId),HttpStatus.OK);
     }
 
+    @GetMapping("getUserCommentOnPost/{postId}")
+    public ResponseEntity<List<CommentDto>> getAllUserCommentsOnPost(@PathVariable(name = "postId") Long postId){
+        return new ResponseEntity(commentService.getAllUserCommentsOnPost(postId),HttpStatus.OK);
+    }
+
     @GetMapping("getUserComment")
     public ResponseEntity<List<CommentDto>> getAllUserComments(@RequestParam(name = "username") String username){
         return new ResponseEntity(commentService.getAllUserComments(username),HttpStatus.OK);

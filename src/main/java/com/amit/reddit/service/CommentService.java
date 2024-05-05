@@ -79,4 +79,14 @@ public class CommentService {
         }
         return;
     }
+
+    public List<CommentDto> getAllUserCommentsOnPost(Long postId) {
+        User user = authService.getCurrentUser();
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> { throw new redditException("Post No Longer Exists!");} );
+        return commentRepository.findAllByUserAndPost(user,post)
+                .stream()
+                .map((comment)->commentMapper.mapCommentToDto(comment))
+                .collect(Collectors.toList());
+    }
 }
