@@ -19,6 +19,7 @@ public class PostResponseDto {
     private Instant creationDate;
     private String userName;
     private String communityName;
+    private Long communityId;
     private Integer votes;
     private Integer comments;
     private VoteType currentVote;

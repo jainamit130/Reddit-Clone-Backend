@@ -20,6 +20,7 @@ public interface PostMapper {
     @InheritInverseConfiguration
     @Mapping(target="userName",source="user.username")
     @Mapping(target="communityName",source="community.communityName")
+    @Mapping(target="communityId",source="community.communityId")
     @Mapping(target="votes",source="votes")
     @Mapping(target="comments",source="comments")
     PostResponseDto mapPostToDto(Post post);
