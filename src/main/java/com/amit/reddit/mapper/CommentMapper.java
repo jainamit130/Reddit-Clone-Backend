@@ -12,6 +12,7 @@ import org.mapstruct.Mapping;
 public interface CommentMapper {
     @Mapping(target = "postId", source = "post.postId")
     @Mapping(target = "username", source = "user.username")
+    @Mapping(target = "replies",ignore = true)
     CommentDto mapCommentToDto(Comment comment);
 
     @InheritInverseConfiguration

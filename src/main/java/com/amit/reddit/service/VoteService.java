@@ -2,9 +2,11 @@ package com.amit.reddit.service;
 
 import com.amit.reddit.dto.VoteDto;
 import com.amit.reddit.exceptions.redditException;
+import com.amit.reddit.model.Comment;
 import com.amit.reddit.model.Post;
 import com.amit.reddit.model.Vote;
 import com.amit.reddit.model.VoteType;
+import com.amit.reddit.repository.CommentRepository;
 import com.amit.reddit.repository.PostRepository;
 import com.amit.reddit.repository.VoteRepository;
 import lombok.AllArgsConstructor;
@@ -16,14 +18,29 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final PostRepository postRepository;
+    private final CommentRepository commentRepository;
     private final AuthService authService;
 
     public void vote(VoteDto voteDto) {
         Post post = postRepository.findById(voteDto.getPostId())
                 .orElseThrow(() -> new redditException("Sorry! The post no longer exists."));
-        Vote vote = voteRepository.findByPostAndUser(post,authService.getCurrentUser())
-                .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
-        Integer voteCount = post.getVotes();
+        Vote vote=null;
+        Integer voteCount=0;
+        if(voteDto.getCommentId()!=null){
+            Comment comment = commentRepository.findById(voteDto.getCommentId())
+                    .orElseThrow(()-> new redditException("Sorry! The comment no longer exists."));
+            vote = voteRepository.findByPostAndCommentAndUser(post,comment,authService.getCurrentUser())
+                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
+            voteCount = comment.getVotes();
+            comment.setVotes(voteCount);
+            commentRepository.save(comment);
+        } else {
+            vote = voteRepository.findByPostAndUser(post,authService.getCurrentUser())
+                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
+            voteCount = post.getVotes();
+            post.setVotes(voteCount);
+            postRepository.save(post);
+        }
         if(voteDto.getVoteType().equals(vote.getVoteType())) {
             if(voteDto.getVoteType().equals(VoteType.UPVOTE))
                 voteCount -= 1;
@@ -43,7 +60,5 @@ public class VoteService {
             }
         }
         voteRepository.save(vote);
-        post.setVotes(voteCount);
-        postRepository.save(post);
     }
 }

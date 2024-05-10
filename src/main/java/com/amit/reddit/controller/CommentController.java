@@ -22,9 +22,15 @@ public class CommentController {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
-    @GetMapping("getPostComments")
-    public ResponseEntity<List<CommentDto>> getAllPostComments(@RequestParam(name="postId") Long postId){
-        return new ResponseEntity(commentService.getAllPostComments(postId),HttpStatus.OK);
+    @PutMapping("/edit")
+    public ResponseEntity editComment(@RequestBody CommentDto commentDto){
+        commentService.edit(commentDto);
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
+
+    @GetMapping("getPostComments/{postId}")
+    public ResponseEntity<List<CommentDto>> getAllPostComments(@PathVariable(name="postId") Long postId,@RequestParam(name="repliesCount") Integer repliesCount){
+        return new ResponseEntity(commentService.getAllPostComments(postId,repliesCount),HttpStatus.OK);
     }
 
     @GetMapping("getUserCommentOnPost/{postId}")
@@ -41,6 +47,5 @@ public class CommentController {
     public ResponseEntity deleteComment(@RequestParam(name = "postId") Long postId,@PathVariable(name="commentId") Long commentId){
         commentService.deleteComment(postId,commentId);
         return new ResponseEntity(HttpStatus.OK);
-
     }
 }

@@ -1,5 +1,6 @@
 package com.amit.reddit.repository;
 
+import com.amit.reddit.model.Comment;
 import com.amit.reddit.model.Post;
 import com.amit.reddit.model.User;
 import com.amit.reddit.model.Vote;
@@ -12,4 +13,6 @@ import java.util.Optional;
 public interface VoteRepository extends JpaRepository<Vote,Long> {
 
     Optional<Vote> findByPostAndUser(Post post, User currentUser);
+
+    Optional<Vote> findByPostAndCommentAndUser(Post post, Comment comment, User currentUser);
 }
