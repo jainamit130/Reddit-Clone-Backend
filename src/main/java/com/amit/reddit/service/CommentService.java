@@ -45,6 +45,11 @@ public class CommentService {
         Comment comment = commentMapper.mapDtoToComment(commentDto,post,user);
         comment.setRepliesCount(0);
         comment.setVotes(1);
+        commentRepository.save(comment);
+        Vote defaultVote=Vote.builder().post(post).comment(comment).user(user).voteType(VoteType.UPVOTE).build();
+        voteRepository.save(defaultVote);
+        post.setComments(post.getComments()+1);
+        postRepository.save(post);
         NotificationEmail notificationEmail;
         if (commentDto.getParentId() != null) {
             Comment parentComment = commentRepository.findById(commentDto.getParentId())
@@ -56,10 +61,6 @@ public class CommentService {
         } else {
             notificationEmail= new NotificationEmail("u/"+user.getUsername()+" commented in r/"+post.getCommunity().getCommunityName(),post.getUser().getEmail(),comment.getComment()+"/n"+VIEW_REPLY);
         }
-        Vote defaultVote=Vote.builder().post(post).comment(comment).user(user).voteType(VoteType.UPVOTE).build();
-        voteRepository.save(defaultVote);
-        post.setComments(post.getComments()+1);
-        postRepository.save(post);
         sendCommentNotificationEmail(notificationEmail);
     }
 
@@ -67,7 +68,7 @@ public class CommentService {
         Post post = getPostOfComment(postId);
         return commentRepository.findAllByPostAndParentCommentIsNull(post)
                 .stream()
-                .map((comment)-> getCommentDtoWithReplies(comment,2))
+                .map((comment)-> getCommentDtoWithReplies(comment,numberOfRepliesSection))
                 .collect(Collectors.toList());
     }
 

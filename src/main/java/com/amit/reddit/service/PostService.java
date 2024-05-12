@@ -52,7 +52,7 @@ public class PostService {
     private VoteType getUserVote(Post post){
         Vote vote = Vote.builder().voteType(VoteType.NOVOTE).build();
         if(authService.isUserLoggedIn()) {
-            vote = voteRepository.findByPostAndUser(post, authService.getCurrentUser())
+            vote = voteRepository.findByPostAndCommentAndUser(post,null,authService.getCurrentUser())
                     .orElse(Vote.builder().voteType(VoteType.NOVOTE).build());
         }
         return vote.getVoteType();

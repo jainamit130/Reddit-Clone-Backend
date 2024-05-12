@@ -35,7 +35,7 @@ public class VoteService {
             comment.setVotes(voteCount);
             commentRepository.save(comment);
         } else {
-            vote = voteRepository.findByPostAndUser(post,authService.getCurrentUser())
+            vote = voteRepository.findByPostAndCommentAndUser(post,null,authService.getCurrentUser())
                     .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
             voteCount = post.getVotes();
             post.setVotes(voteCount);
