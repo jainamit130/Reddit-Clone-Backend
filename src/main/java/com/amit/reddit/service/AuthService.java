@@ -75,8 +75,7 @@ public class AuthService {
 
     @Transactional
     public void activateAccount(String token) {
-        Optional<VerificationToken> verificationToken=verificationTokenRepository.findByToken(token);
-        System.out.println(verificationToken);
+        Optional<VerificationToken> verificationToken=verificationTokenRepository.findByToken(token);;
         verificationToken.ifPresentOrElse((authenticationToken) -> {
             Optional<User> user=userRepository.findById(authenticationToken.getUser().getUserId());
             user.ifPresentOrElse((UserToVerify) -> {

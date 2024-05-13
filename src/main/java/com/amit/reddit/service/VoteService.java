@@ -26,20 +26,17 @@ public class VoteService {
                 .orElseThrow(() -> new redditException("Sorry! The post no longer exists."));
         Vote vote=null;
         Integer voteCount=0;
+        Comment comment = null;
         if(voteDto.getCommentId()!=null){
-            Comment comment = commentRepository.findById(voteDto.getCommentId())
+            comment = commentRepository.findById(voteDto.getCommentId())
                     .orElseThrow(()-> new redditException("Sorry! The comment no longer exists."));
             vote = voteRepository.findByPostAndCommentAndUser(post,comment,authService.getCurrentUser())
                     .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
             voteCount = comment.getVotes();
-            comment.setVotes(voteCount);
-            commentRepository.save(comment);
         } else {
             vote = voteRepository.findByPostAndCommentAndUser(post,null,authService.getCurrentUser())
                     .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
             voteCount = post.getVotes();
-            post.setVotes(voteCount);
-            postRepository.save(post);
         }
         if(voteDto.getVoteType().equals(vote.getVoteType())) {
             if(voteDto.getVoteType().equals(VoteType.UPVOTE))
@@ -60,5 +57,31 @@ public class VoteService {
             }
         }
         voteRepository.save(vote);
+        if(voteDto.getCommentId()!=null){
+            comment.setVotes(voteCount);
+            commentRepository.save(comment);
+        } else {
+            post.setVotes(voteCount);
+            postRepository.save(post);
+        }
+    }
+
+    public VoteType getUserVote(Post post,Comment comment){
+        Vote vote = Vote.builder().voteType(VoteType.NOVOTE).build();
+        if(authService.isUserLoggedIn()) {
+            vote = voteRepository.findByPostAndCommentAndUser(post,comment,authService.getCurrentUser())
+                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).build());
+        }
+        return vote.getVoteType();
+    }
+
+    public void saveDefaultVote(Post post) {
+        Vote defaultVote=Vote.builder().post(post).user(authService.getCurrentUser()).voteType(VoteType.UPVOTE).build();
+        voteRepository.save(defaultVote);
+    }
+
+    public void saveDefaultVote(Post post,Comment comment) {
+        Vote defaultVote=Vote.builder().post(post).comment(comment).user(authService.getCurrentUser()).voteType(VoteType.UPVOTE).build();
+        voteRepository.save(defaultVote);
     }
 }

@@ -27,7 +27,7 @@ public class PostService {
     private final CommunityRepository communityRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final VoteRepository voteRepository;
+    private final VoteService voteService;
     private final AuthService authService;
     private final PostMapper postMapper;
 
@@ -43,19 +43,9 @@ public class PostService {
         postRepository.save(post);
         community.addPost(post);
         communityRepository.save(community);
-        Vote defaultVote=Vote.builder().post(post).user(currentUser).voteType(VoteType.UPVOTE).build();
-        voteRepository.save(defaultVote);
+        voteService.saveDefaultVote(post);
         PostResponseDto postResponse = postToPostResponse(post);
         return postResponse;
-    }
-
-    private VoteType getUserVote(Post post){
-        Vote vote = Vote.builder().voteType(VoteType.NOVOTE).build();
-        if(authService.isUserLoggedIn()) {
-            vote = voteRepository.findByPostAndCommentAndUser(post,null,authService.getCurrentUser())
-                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).build());
-        }
-        return vote.getVoteType();
     }
 
     @Transactional(readOnly = true)
@@ -105,7 +95,7 @@ public class PostService {
 
     public PostResponseDto postToPostResponse(Post post) {
         PostResponseDto postResponse = postMapper.mapPostToDto(post);
-        postResponse.setCurrentVote(getUserVote(post));
+        postResponse.setCurrentVote(voteService.getUserVote(post,null));
         return postResponse;
     }
 }

@@ -1,6 +1,7 @@
 package com.amit.reddit.service;
 
 import com.amit.reddit.dto.CommentDto;
+import com.amit.reddit.dto.PostResponseDto;
 import com.amit.reddit.exceptions.redditException;
 import com.amit.reddit.exceptions.redditUserNotFoundException;
 import com.amit.reddit.mapper.CommentMapper;
@@ -11,7 +12,6 @@ import com.amit.reddit.repository.UserRepository;
 import com.amit.reddit.repository.VoteRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +32,7 @@ public class CommentService {
     private final VoteRepository voteRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final VoteService voteService;
     private final AuthService authService;
     private final CommentMapper commentMapper;
     private final MailService mailService;
@@ -46,8 +47,7 @@ public class CommentService {
         comment.setRepliesCount(0);
         comment.setVotes(1);
         commentRepository.save(comment);
-        Vote defaultVote=Vote.builder().post(post).comment(comment).user(user).voteType(VoteType.UPVOTE).build();
-        voteRepository.save(defaultVote);
+        voteService.saveDefaultVote(post,comment);
         post.setComments(post.getComments()+1);
         postRepository.save(post);
         NotificationEmail notificationEmail;
@@ -68,20 +68,20 @@ public class CommentService {
         Post post = getPostOfComment(postId);
         return commentRepository.findAllByPostAndParentCommentIsNull(post)
                 .stream()
-                .map((comment)-> getCommentDtoWithReplies(comment,numberOfRepliesSection))
+                .map((comment)-> getCommentDtoWithReplies(post,comment,numberOfRepliesSection))
                 .collect(Collectors.toList());
     }
 
-    private CommentDto getCommentDtoWithReplies(Comment comment,Integer numberOfRepliesSection) {
+    private CommentDto getCommentDtoWithReplies(Post post,Comment comment,Integer numberOfRepliesSection) {
         if(comment.getRepliesCount()==0) {
-            return commentMapper.mapCommentToDto(comment);
+            return commentToCommentResponse(post,comment);
         }
 
-        CommentDto commentWithLayersOfReplies=commentMapper.mapCommentToDto(comment);
+        CommentDto commentWithLayersOfReplies=commentToCommentResponse(post,comment);
         List<Comment> replies = comment.getReplies();
         for(Comment reply: replies){
             if(numberOfRepliesSection>0 || (reply.getVotes() != null && reply.getVotes() > 3))
-                commentWithLayersOfReplies.addReply(getCommentDtoWithReplies(reply,numberOfRepliesSection-1));
+                commentWithLayersOfReplies.addReply(getCommentDtoWithReplies(post,reply,numberOfRepliesSection-1));
         }
         return commentWithLayersOfReplies;
     }
@@ -125,6 +125,14 @@ public class CommentService {
         return;
     }
 
+    public CommentDto getCommentBasedOnId(Long postId,Long commentId){
+        Post post = getPostOfComment(postId);
+        Comment comment = getComment(commentId);
+        CommentDto commentDto = commentMapper.mapCommentToDto(comment);
+        commentDto.setCurrentVote(voteService.getUserVote(post,comment));
+        return commentDto;
+    }
+
     private Comment getComment(Long commentId) {
         return commentRepository.findById(commentId)
                 .orElseThrow(() -> new redditException("Comment no longer exists!!"));
@@ -136,7 +144,7 @@ public class CommentService {
                 .orElseThrow(() -> { throw new redditException("Post No Longer Exists!");} );
         return commentRepository.findAllByUserAndPost(user,post)
                 .stream()
-                .map((comment)->commentMapper.mapCommentToDto(comment))
+                .map((comment)->commentToCommentResponse(post,comment))
                 .collect(Collectors.toList());
     }
 
@@ -148,5 +156,11 @@ public class CommentService {
         User user=authService.getCurrentUser();
         NotificationEmail notificationEmail= new NotificationEmail("u/"+user.getUsername()+" updated a previous comment in r/"+post.getCommunity().getCommunityName(),authService.getCurrentUser().getEmail(),comment.getComment()+"/n"+VIEW_REPLY);
         sendCommentNotificationEmail(notificationEmail);
+    }
+
+    public CommentDto commentToCommentResponse(Post post,Comment comment) {
+        CommentDto commentDto = commentMapper.mapCommentToDto(comment);
+        commentDto.setCurrentVote(voteService.getUserVote(post,comment));
+        return commentDto;
     }
 }

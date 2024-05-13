@@ -38,6 +38,11 @@ public class CommentController {
         return new ResponseEntity(commentService.getAllUserCommentsOnPost(postId),HttpStatus.OK);
     }
 
+    @GetMapping("getComment/{commentId}")
+    public ResponseEntity<CommentDto> getComment(@RequestParam(name = "postId") Long postId,@PathVariable(name="commentId") Long commentId){
+        return new ResponseEntity<CommentDto>(commentService.getCommentBasedOnId(postId,commentId),HttpStatus.OK);
+    }
+
     @GetMapping("getUserComment")
     public ResponseEntity<List<CommentDto>> getAllUserComments(@RequestParam(name = "username") String username){
         return new ResponseEntity(commentService.getAllUserComments(username),HttpStatus.OK);
