@@ -29,7 +29,6 @@ public class CommentService {
 
     private final String VIEW_REPLY="";
     private final CommentRepository commentRepository;
-    private final VoteRepository voteRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final VoteService voteService;
@@ -37,7 +36,7 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final MailService mailService;
 
-    public void create(CommentDto commentDto) {
+    public CommentDto create(CommentDto commentDto) {
         Post post = getPostOfComment(commentDto.getPostId());
         User user=authService.getCurrentUser();
         if(!commentDto.getUsername().equals(user.getUsername())){
@@ -46,6 +45,7 @@ public class CommentService {
         Comment comment = commentMapper.mapDtoToComment(commentDto,post,user);
         comment.setRepliesCount(0);
         comment.setVotes(1);
+        comment.setIsDeleted(false);
         commentRepository.save(comment);
         voteService.saveDefaultVote(post,comment);
         post.setComments(post.getComments()+1);
@@ -62,17 +62,25 @@ public class CommentService {
             notificationEmail= new NotificationEmail("u/"+user.getUsername()+" commented in r/"+post.getCommunity().getCommunityName(),post.getUser().getEmail(),comment.getComment()+"/n"+VIEW_REPLY);
         }
         sendCommentNotificationEmail(notificationEmail);
+        return commentToCommentResponse(post,comment);
     }
 
-    public List<CommentDto> getAllPostComments(Long postId,Integer numberOfRepliesSection) {
+    public List<CommentDto> getAllPostComments(Long postId,Long commentId,Integer numberOfRepliesSection) {
         Post post = getPostOfComment(postId);
-        return commentRepository.findAllByPostAndParentCommentIsNull(post)
+        Comment comment = null;
+        Boolean regularFetchOfPopularComments = true;
+        if(commentId!=null)
+            comment=commentRepository.findById(commentId).orElseThrow(()-> {throw new redditException("Sorry! The Coment no longer exists");});
+        else
+            regularFetchOfPopularComments=false;
+        final boolean finalRegularFetchOfPopularComments = regularFetchOfPopularComments;
+        return commentRepository.findAllByPostAndParentComment(post,comment)
                 .stream()
-                .map((comment)-> getCommentDtoWithReplies(post,comment,numberOfRepliesSection))
+                .map((parentComment)-> getCommentDtoWithReplies(post,parentComment,numberOfRepliesSection,finalRegularFetchOfPopularComments))
                 .collect(Collectors.toList());
     }
 
-    private CommentDto getCommentDtoWithReplies(Post post,Comment comment,Integer numberOfRepliesSection) {
+    private CommentDto getCommentDtoWithReplies(Post post,Comment comment,Integer numberOfRepliesSection,Boolean defaultFetch) {
         if(comment.getRepliesCount()==0) {
             return commentToCommentResponse(post,comment);
         }
@@ -80,8 +88,8 @@ public class CommentService {
         CommentDto commentWithLayersOfReplies=commentToCommentResponse(post,comment);
         List<Comment> replies = comment.getReplies();
         for(Comment reply: replies){
-            if(numberOfRepliesSection>0 || (reply.getVotes() != null && reply.getVotes() > 3))
-                commentWithLayersOfReplies.addReply(getCommentDtoWithReplies(post,reply,numberOfRepliesSection-1));
+            if(numberOfRepliesSection>0 || (defaultFetch && (reply.getVotes() != null && reply.getVotes() > 3)))
+                commentWithLayersOfReplies.addReply(getCommentDtoWithReplies(post,reply,numberOfRepliesSection-1,defaultFetch));
         }
         return commentWithLayersOfReplies;
     }
@@ -110,13 +118,15 @@ public class CommentService {
         //Check if the comment belongs to the User who requested
         User user= authService.getCurrentUser();
         if(user.equals(comment.getUser())){
-            if(comment.getParentComment()!=null){
-                Comment parentComment=comment.getParentComment();
-                parentComment.setRepliesCount(parentComment.getRepliesCount()-1);
+            comment.setComment("deleted");
+            comment.setIsDeleted(true);
+            commentRepository.save(comment);
+            if(comment.getParentComment()!=null) {
+                Comment parentComment = comment.getParentComment();
+                List<Comment> replies = parentComment.getReplies();
+                parentComment.removeReply(comment);
                 commentRepository.save(parentComment);
             }
-            comment.setComment("deleted");
-            commentRepository.save(comment);
             post.setComments(post.getComments()-1);
             postRepository.save(post);
         } else {
@@ -148,14 +158,16 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    public void edit(CommentDto commentDto) {
+    public CommentDto edit(CommentDto commentDto) {
         Comment comment=getComment(commentDto.getCommentId());
         comment.setComment(commentDto.getComment());
         commentRepository.save(comment);
         Post post = getPostOfComment(comment.getPost().getPostId());
         User user=authService.getCurrentUser();
+        CommentDto updatedComment = commentToCommentResponse(post,comment);
         NotificationEmail notificationEmail= new NotificationEmail("u/"+user.getUsername()+" updated a previous comment in r/"+post.getCommunity().getCommunityName(),authService.getCurrentUser().getEmail(),comment.getComment()+"/n"+VIEW_REPLY);
         sendCommentNotificationEmail(notificationEmail);
+        return updatedComment;
     }
 
     public CommentDto commentToCommentResponse(Post post,Comment comment) {

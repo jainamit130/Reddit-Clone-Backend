@@ -8,8 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -43,13 +43,18 @@ public class Comment {
     @JoinColumn(name = "parentCommentId")
     private Comment parentComment;
 
+    private Boolean isDeleted;
+
     private Instant creationDate;
 
     public void addReply(Comment reply){
-        if(replies == null){
-            replies = new ArrayList<>();
-        }
         replies.add(reply);
         repliesCount++;
+    }
+
+    public void removeReply(Comment replyToBeRemoved) {
+        replies = replies.stream()
+                .filter(reply -> !reply.getCommentId().equals(replyToBeRemoved.getCommentId()))
+                .collect(Collectors.toList());
     }
 }

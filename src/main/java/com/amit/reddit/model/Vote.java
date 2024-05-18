@@ -20,6 +20,15 @@ public class Vote {
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="userId",referencedColumnName = "userId")
     private User user;
+
+    @Override
+    public String toString() {
+        return "Vote{" +
+                "voteId=" + voteId +
+                ", voteType=" + voteType.toString() +
+                '}';
+    }
+
     @NotNull
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="postId",referencedColumnName = "postId")

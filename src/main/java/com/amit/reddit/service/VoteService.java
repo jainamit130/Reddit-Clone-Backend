@@ -31,11 +31,11 @@ public class VoteService {
             comment = commentRepository.findById(voteDto.getCommentId())
                     .orElseThrow(()-> new redditException("Sorry! The comment no longer exists."));
             vote = voteRepository.findByPostAndCommentAndUser(post,comment,authService.getCurrentUser())
-                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
+                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).comment(comment).user(authService.getCurrentUser()).build());
             voteCount = comment.getVotes();
         } else {
             vote = voteRepository.findByPostAndCommentAndUser(post,null,authService.getCurrentUser())
-                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).user(authService.getCurrentUser()).build());
+                    .orElse(Vote.builder().voteType(VoteType.NOVOTE).post(post).comment(null).user(authService.getCurrentUser()).build());
             voteCount = post.getVotes();
         }
         if(voteDto.getVoteType().equals(vote.getVoteType())) {
@@ -47,15 +47,16 @@ public class VoteService {
         }
         else {
             if (voteDto.getVoteType().equals(VoteType.UPVOTE)) {
-                if(vote.getVoteType()!=VoteType.NOVOTE) voteCount += 2;
+                if(!vote.getVoteType().equals(VoteType.NOVOTE)) voteCount += 2;
                 else voteCount += 1;
                 vote.setVoteType(VoteType.UPVOTE);
             } else {
-                if (vote.getVoteType()!=VoteType.NOVOTE) voteCount -= 2;
+                if(!vote.getVoteType().equals(VoteType.NOVOTE)) voteCount -= 2;
                 else voteCount -= 1;
                 vote.setVoteType(VoteType.DOWNVOTE);
             }
         }
+        System.out.println(vote);
         voteRepository.save(vote);
         if(voteDto.getCommentId()!=null){
             comment.setVotes(voteCount);

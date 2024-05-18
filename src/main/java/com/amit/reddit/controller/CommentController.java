@@ -18,19 +18,22 @@ public class CommentController {
 
     @PostMapping("/create")
     public ResponseEntity createComment(@RequestBody CommentDto commentDto){
-        commentService.create(commentDto);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<CommentDto>(commentService.create(commentDto),HttpStatus.CREATED);
     }
 
     @PutMapping("/edit")
     public ResponseEntity editComment(@RequestBody CommentDto commentDto){
-        commentService.edit(commentDto);
-        return new ResponseEntity(HttpStatus.CREATED);
+        return new ResponseEntity<CommentDto>(commentService.edit(commentDto),HttpStatus.CREATED);
     }
 
     @GetMapping("getPostComments/{postId}")
     public ResponseEntity<List<CommentDto>> getAllPostComments(@PathVariable(name="postId") Long postId,@RequestParam(name="repliesCount") Integer repliesCount){
-        return new ResponseEntity(commentService.getAllPostComments(postId,repliesCount),HttpStatus.OK);
+        return new ResponseEntity(commentService.getAllPostComments(postId,null,repliesCount),HttpStatus.OK);
+    }
+
+    @GetMapping("getMoreReplies/{commentId}")
+    public ResponseEntity<List<CommentDto>> getMoreReplies(@PathVariable(name="commentId") Long commentId,@RequestParam(name="postId") Long postId){
+        return new ResponseEntity(commentService.getAllPostComments(postId,commentId,2),HttpStatus.OK);
     }
 
     @GetMapping("getUserCommentOnPost/{postId}")
