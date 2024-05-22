@@ -13,5 +13,7 @@ import lombok.NoArgsConstructor;
 public class CommunitySearchDto {
     @NotBlank(message = "Community name is required")
     private String communityName;
+    @NotBlank
+    private Long communityId;
     private Integer numberOfMembers;
 }

@@ -3,10 +3,8 @@ package com.amit.reddit.service;
 import com.amit.reddit.dto.CommunityDto;
 import com.amit.reddit.dto.CommunitySearchDto;
 import com.amit.reddit.exceptions.redditException;
-import com.amit.reddit.exceptions.redditUserNotFoundException;
 import com.amit.reddit.mapper.CommunityMapper;
 import com.amit.reddit.model.Community;
-import com.amit.reddit.model.Post;
 import com.amit.reddit.model.User;
 import com.amit.reddit.repository.CommunityRepository;
 import com.amit.reddit.repository.UserRepository;
@@ -121,7 +119,7 @@ public class CommunityService {
     public List<CommunitySearchDto> search(String prefix) {
         List<Community> communities = communityRepository.findAllByCommunityNameStartsWithIgnoreCase(prefix);
         return communities.stream()
-                .map(community -> CommunitySearchDto.builder().communityName(community.getCommunityName()).numberOfMembers(community.getNumberOfMembers()).build())
+                .map(community -> CommunitySearchDto.builder().communityName(community.getCommunityName()).communityId(community.getCommunityId()).numberOfMembers(community.getNumberOfMembers()).build())
                 .collect(toList());
     }
 }

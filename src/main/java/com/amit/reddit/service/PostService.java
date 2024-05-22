@@ -98,4 +98,13 @@ public class PostService {
         postResponse.setCurrentVote(voteService.getUserVote(post,null));
         return postResponse;
     }
+
+    public List<PostResponseDto> getAllSearchedPosts(String searchQuery){
+        return postRepository.findAllByDescriptionContains(searchQuery.toLowerCase())
+                .stream()
+                .map(post -> {
+                    return postToPostResponse(post);
+                })
+                .collect(Collectors.toList());
+    }
 }

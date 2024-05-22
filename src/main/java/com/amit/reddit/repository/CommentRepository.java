@@ -17,4 +17,6 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
     List<Comment> findAllByUser(User user);
 
     List<Comment> findAllByUserAndPost(User user, Post post);
+
+    List<Comment> findAllByCommentContainsIgnoreCase(String searchQuery);
 }

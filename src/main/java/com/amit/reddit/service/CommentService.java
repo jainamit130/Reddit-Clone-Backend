@@ -172,7 +172,15 @@ public class CommentService {
 
     public CommentDto commentToCommentResponse(Post post,Comment comment) {
         CommentDto commentDto = commentMapper.mapCommentToDto(comment);
-        commentDto.setCurrentVote(voteService.getUserVote(post,comment));
+        if(post!=null)
+            commentDto.setCurrentVote(voteService.getUserVote(post,comment));
         return commentDto;
+    }
+
+    public List<CommentDto> getAllSearchedComments(String searchQuery) {
+        return commentRepository.findAllByCommentContainsIgnoreCase(searchQuery)
+                .stream()
+                .map((comment)->commentToCommentResponse(null,comment))
+                .collect(Collectors.toList());
     }
 }
