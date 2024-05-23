@@ -17,6 +17,6 @@ public interface PostRepository extends JpaRepository<Post,Long> {
 
     List<Post> findAllByUser(User user);
 
-    @Query("SELECT p FROM Post p WHERE lower(cast(p.description as string)) LIKE %:searchQuery%")
-    List<Post> findAllByDescriptionContains(@Param("searchQuery") String prefixSearch);
+    @Query("SELECT p FROM Post p WHERE lower(cast(p.description as string)) LIKE %:searchQuery% OR lower(cast(p.postName as string)) LIKE %:searchQuery%")
+    List<Post> findAllByDescriptionOrPostNameContains(@Param("searchQuery") String prefixSearch);
 }

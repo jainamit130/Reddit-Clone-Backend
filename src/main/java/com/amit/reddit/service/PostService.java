@@ -100,7 +100,7 @@ public class PostService {
     }
 
     public List<PostResponseDto> getAllSearchedPosts(String searchQuery){
-        return postRepository.findAllByDescriptionContains(searchQuery.toLowerCase())
+        return postRepository.findAllByDescriptionOrPostNameContains(searchQuery.toLowerCase())
                 .stream()
                 .map(post -> {
                     return postToPostResponse(post);
