@@ -122,4 +122,11 @@ public class CommunityService {
                 .map(community -> CommunitySearchDto.builder().communityName(community.getCommunityName()).communityId(community.getCommunityId()).numberOfMembers(community.getNumberOfMembers()).build())
                 .collect(toList());
     }
+
+    public List<CommunityDto> getAllSearchedCommunities(String searchQuery) {
+        return communityRepository.findAllByDescriptionOrCommunityNameContains(searchQuery.toLowerCase())
+                .stream()
+                .map(community -> communityMapper.mapCommunityToDto(community))
+                .collect(Collectors.toList());
+    }
 }

@@ -9,7 +9,6 @@ import com.amit.reddit.model.*;
 import com.amit.reddit.repository.CommentRepository;
 import com.amit.reddit.repository.PostRepository;
 import com.amit.reddit.repository.UserRepository;
-import com.amit.reddit.repository.VoteRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,7 +28,7 @@ public class CommentService {
 
     private final String VIEW_REPLY="";
     private final CommentRepository commentRepository;
-    private final PostRepository postRepository;
+    private final PostService postService;
     private final UserRepository userRepository;
     private final VoteService voteService;
     private final AuthService authService;
@@ -37,7 +36,7 @@ public class CommentService {
     private final MailService mailService;
 
     public CommentDto create(CommentDto commentDto) {
-        Post post = getPostOfComment(commentDto.getPostId());
+        Post post = postService.getPostOfComment(commentDto.getPostId());
         User user=authService.getCurrentUser();
         if(!commentDto.getUsername().equals(user.getUsername())){
             throw new redditException("Sorry! something went wrong!");
@@ -49,7 +48,7 @@ public class CommentService {
         commentRepository.save(comment);
         voteService.saveDefaultVote(post,comment);
         post.setComments(post.getComments()+1);
-        postRepository.save(post);
+        postService.savePost(post);
         NotificationEmail notificationEmail;
         if (commentDto.getParentId() != null) {
             Comment parentComment = commentRepository.findById(commentDto.getParentId())
@@ -66,7 +65,7 @@ public class CommentService {
     }
 
     public List<CommentDto> getAllPostComments(Long postId,Long commentId,Integer numberOfRepliesSection) {
-        Post post = getPostOfComment(postId);
+        Post post = postService.getPostOfComment(postId);
         Comment comment = null;
         Boolean regularFetchOfPopularComments = true;
         if(commentId!=null)
@@ -94,11 +93,6 @@ public class CommentService {
         return commentWithLayersOfReplies;
     }
 
-    private Post getPostOfComment(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(() -> new redditException("Sorry! The post no longer exists"));
-    }
-
     public List<CommentDto> getAllUserComments(String userName) {
         User user = userRepository.findByUsername(userName)
                 .orElseThrow(() -> new redditUserNotFoundException(userName));
@@ -113,7 +107,7 @@ public class CommentService {
     }
 
     public void deleteComment(Long postId,Long commentId) {
-        Post post = getPostOfComment(postId);
+        Post post = postService.getPostOfComment(postId);
         Comment comment = getComment(commentId);
         //Check if the comment belongs to the User who requested
         User user= authService.getCurrentUser();
@@ -128,7 +122,7 @@ public class CommentService {
                 commentRepository.save(parentComment);
             }
             post.setComments(post.getComments()-1);
-            postRepository.save(post);
+            postService.savePost(post);
         } else {
             throw new redditException("No such comment exists for user: "+user.getUsername());
         }
@@ -136,7 +130,7 @@ public class CommentService {
     }
 
     public CommentDto getCommentBasedOnId(Long postId,Long commentId){
-        Post post = getPostOfComment(postId);
+        Post post = postService.getPostOfComment(postId);
         Comment comment = getComment(commentId);
         CommentDto commentDto = commentMapper.mapCommentToDto(comment);
         commentDto.setCurrentVote(voteService.getUserVote(post,comment));
@@ -150,8 +144,7 @@ public class CommentService {
 
     public List<CommentDto> getAllUserCommentsOnPost(Long postId) {
         User user = authService.getCurrentUser();
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> { throw new redditException("Post No Longer Exists!");} );
+        Post post = postService.getPostOfComment(postId);
         return commentRepository.findAllByUserAndPost(user,post)
                 .stream()
                 .map((comment)->commentToCommentResponse(post,comment))
@@ -162,7 +155,7 @@ public class CommentService {
         Comment comment=getComment(commentDto.getCommentId());
         comment.setComment(commentDto.getComment());
         commentRepository.save(comment);
-        Post post = getPostOfComment(comment.getPost().getPostId());
+        Post post = postService.getPostOfComment(comment.getPost().getPostId());
         User user=authService.getCurrentUser();
         CommentDto updatedComment = commentToCommentResponse(post,comment);
         NotificationEmail notificationEmail= new NotificationEmail("u/"+user.getUsername()+" updated a previous comment in r/"+post.getCommunity().getCommunityName(),authService.getCurrentUser().getEmail(),comment.getComment()+"/n"+VIEW_REPLY);
@@ -178,9 +171,14 @@ public class CommentService {
     }
 
     public List<CommentDto> getAllSearchedComments(String searchQuery) {
-        return commentRepository.findAllByCommentContainsIgnoreCase(searchQuery)
+        return commentRepository.findAllByCommentContainsIgnoreCaseAndIsDeletedFalse(searchQuery)
                 .stream()
-                .map((comment)->commentToCommentResponse(null,comment))
+                .map((comment)-> {
+                    Post post = comment.getPost();
+                    CommentDto commentResponse = commentToCommentResponse(post,comment);
+                    commentResponse.setPost(postService.postToPostResponse(post));
+                    return commentResponse;
+                })
                 .collect(Collectors.toList());
     }
 }

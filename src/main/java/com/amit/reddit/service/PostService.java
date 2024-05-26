@@ -40,7 +40,7 @@ public class PostService {
         Post post=postMapper.mapDtoToPost(postDto,community,currentUser);
         post.setVotes(1);//On creating the post the vote is set by defualt to 1
         post.setComments(0);
-        postRepository.save(post);
+        savePost(post);
         community.addPost(post);
         communityRepository.save(community);
         voteService.saveDefaultVote(post);
@@ -106,5 +106,14 @@ public class PostService {
                     return postToPostResponse(post);
                 })
                 .collect(Collectors.toList());
+    }
+
+    public Post getPostOfComment(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new redditException("Sorry! The post no longer exists"));
+    }
+
+    public void savePost(Post post) {
+        postRepository.save(post);
     }
 }

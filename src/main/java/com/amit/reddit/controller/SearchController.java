@@ -1,6 +1,7 @@
 package com.amit.reddit.controller;
 
 import com.amit.reddit.dto.CommentDto;
+import com.amit.reddit.dto.CommunityDto;
 import com.amit.reddit.dto.PostResponseDto;
 import com.amit.reddit.service.CommentService;
 import com.amit.reddit.service.CommunityService;
@@ -32,5 +33,10 @@ public class SearchController {
     @GetMapping("/comments")
     public ResponseEntity<List<CommentDto>> redditSearchComments(@RequestParam(name = "q") String searchQuery){
         return new ResponseEntity(commentService.getAllSearchedComments(searchQuery), HttpStatus.OK);
+    }
+
+    @GetMapping("/communities")
+    public ResponseEntity<List<CommunityDto>> redditSearchCommunities(@RequestParam(name = "q") String searchQuery){
+        return new ResponseEntity(communityService.getAllSearchedCommunities(searchQuery), HttpStatus.OK);
     }
 }

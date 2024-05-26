@@ -29,6 +29,7 @@ public class CommentDto {
     private VoteType currentVote;
     private Integer votes;
     private Boolean isDeleted;
+    private PostResponseDto post;
 
 
     public void addReply(CommentDto reply){
