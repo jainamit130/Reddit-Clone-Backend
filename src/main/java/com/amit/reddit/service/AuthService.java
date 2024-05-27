@@ -89,11 +89,12 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(loginDto.getUserName(),
                         loginDto.getPassword()));
-        var user = getUserFromUsername(loginDto.getUserName());
+        User user = getUserFromUsername(loginDto.getUserName());
         String token = jwtService.generateToken(user);
         return ResponseDto.builder()
                 .authenticationToken(token)
                 .userName(loginDto.getUserName())
+                .userId(user.getUserId())
                 .refreshToken(refreshTokenService.generateRefreshToken().getRefreshToken())
                 .expiresAt(jwtService.getExpirationTime())
                 .build();
@@ -120,10 +121,12 @@ public class AuthService {
 
     public ResponseDto refreshToken(RefreshTokenRequest refreshTokenRequest) {
         refreshTokenService.validate(refreshTokenRequest.getRefreshToken());
-        String token = jwtService.generateToken(getUserFromUsername(refreshTokenRequest.getUsername()));
+        User user = getUserFromUsername(refreshTokenRequest.getUsername());
+        String token = jwtService.generateToken(user);
         return ResponseDto.builder()
                 .authenticationToken(token)
                 .userName(refreshTokenRequest.getUsername())
+                .userId(user.getUserId())
                 .refreshToken(refreshTokenRequest.getRefreshToken())
                 .expiresAt(jwtService.getExpirationTime())
                 .build();

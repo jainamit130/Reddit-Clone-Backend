@@ -8,6 +8,6 @@ public class redditUserNotFoundException extends UsernameNotFoundException {
     }
 
     public redditUserNotFoundException() {
-        super("User name not found");
+        super("User not found");
     }
 }

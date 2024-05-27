@@ -3,9 +3,11 @@ package com.amit.reddit.controller;
 import com.amit.reddit.dto.CommentDto;
 import com.amit.reddit.dto.CommunityDto;
 import com.amit.reddit.dto.PostResponseDto;
+import com.amit.reddit.dto.UserSearchResponse;
 import com.amit.reddit.service.CommentService;
 import com.amit.reddit.service.CommunityService;
 import com.amit.reddit.service.PostService;
+import com.amit.reddit.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ public class SearchController {
     private final PostService postService;
     private final CommentService commentService;
     private final CommunityService communityService;
+    private final UserService userService;
 
     @GetMapping("/posts")
     public ResponseEntity<List<PostResponseDto>> redditSearchPosts(@RequestParam(name = "q") String searchQuery){
@@ -38,5 +41,10 @@ public class SearchController {
     @GetMapping("/communities")
     public ResponseEntity<List<CommunityDto>> redditSearchCommunities(@RequestParam(name = "q") String searchQuery){
         return new ResponseEntity(communityService.getAllSearchedCommunities(searchQuery), HttpStatus.OK);
+    }
+
+    @GetMapping("/people")
+    public ResponseEntity<List<UserSearchResponse>> redditSearchPeople(@RequestParam(name = "q") String searchQuery){
+        return new ResponseEntity(userService.getAllSearchedUsers(searchQuery), HttpStatus.OK);
     }
 }

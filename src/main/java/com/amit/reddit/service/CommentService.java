@@ -64,6 +64,14 @@ public class CommentService {
         return commentToCommentResponse(post,comment);
     }
 
+    public CommentDto getSingleCommentThread(Long postId, Long commentId) {
+        Post post = postService.getPostOfComment(postId);
+        Comment comment = getComment(commentId);
+        CommentDto commentResponse = commentToCommentResponse(post,comment);
+        commentResponse.setReplies(getAllPostComments(postId,commentId,3));
+        return commentResponse;
+    }
+
     public List<CommentDto> getAllPostComments(Long postId,Long commentId,Integer numberOfRepliesSection) {
         Post post = postService.getPostOfComment(postId);
         Comment comment = null;
@@ -96,7 +104,7 @@ public class CommentService {
     public List<CommentDto> getAllUserComments(String userName) {
         User user = userRepository.findByUsername(userName)
                 .orElseThrow(() -> new redditUserNotFoundException(userName));
-        return commentRepository.findAllByUser(user)
+        return commentRepository.findAllByUserAndIsDeletedFalse(user)
                 .stream()
                 .map((comment)->commentMapper.mapCommentToDto(comment))
                 .collect(Collectors.toList());

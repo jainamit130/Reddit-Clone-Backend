@@ -19,6 +19,7 @@ public interface PostMapper {
 
     @InheritInverseConfiguration
     @Mapping(target="userName",source="user.username")
+    @Mapping(target="userId",source="user.userId")
     @Mapping(target="communityName",source="community.communityName")
     @Mapping(target="communityId",source="community.communityId")
     @Mapping(target="votes",source="votes")

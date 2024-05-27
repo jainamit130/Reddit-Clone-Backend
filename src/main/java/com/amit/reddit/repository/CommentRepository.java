@@ -14,7 +14,7 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment,Long> {
     List<Comment> findAllByPostAndParentComment(Post post,Comment comment);
 
-    List<Comment> findAllByUser(User user);
+    List<Comment> findAllByUserAndIsDeletedFalse(User user);
 
     List<Comment> findAllByUserAndPost(User user, Post post);
 

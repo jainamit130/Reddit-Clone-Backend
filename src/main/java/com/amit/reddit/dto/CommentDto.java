@@ -24,6 +24,7 @@ public class CommentDto {
     private String comment;
     private Long parentId;
     private String username;
+    private Long userId;
     List<CommentDto> replies;
     private Integer repliesCount;
     private VoteType currentVote;

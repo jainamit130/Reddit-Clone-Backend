@@ -51,6 +51,11 @@ public class CommentController {
         return new ResponseEntity(commentService.getAllUserComments(username),HttpStatus.OK);
     }
 
+    @GetMapping("singleThread")
+    public ResponseEntity<CommentDto> getSingleThread(@RequestParam(name = "postId") Long postId,@RequestParam(name = "commentId") Long commentId){
+        return new ResponseEntity(commentService.getSingleCommentThread(postId,commentId),HttpStatus.OK);
+    }
+
     @PostMapping("deleteComment/{commentId}")
     public ResponseEntity deleteComment(@RequestParam(name = "postId") Long postId,@PathVariable(name="commentId") Long commentId){
         commentService.deleteComment(postId,commentId);

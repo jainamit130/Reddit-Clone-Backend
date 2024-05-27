@@ -11,10 +11,8 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResponseDto {
-    private String authenticationToken;
-    private String userName;
+public class UserSearchResponse {
     private Long userId;
-    private Instant expiresAt;
-    private String refreshToken;
+    private String userName;
+    private Instant joinDate;
 }
