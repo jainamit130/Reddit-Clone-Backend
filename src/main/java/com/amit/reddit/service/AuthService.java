@@ -6,7 +6,6 @@ import com.amit.reddit.dto.RegisterDto;
 import com.amit.reddit.dto.ResponseDto;
 import com.amit.reddit.exceptions.redditException;
 import com.amit.reddit.exceptions.redditUserNotFoundException;
-import com.amit.reddit.model.NotificationEmail;
 import com.amit.reddit.model.Role;
 import com.amit.reddit.model.User;
 import com.amit.reddit.model.VerificationToken;
@@ -57,10 +56,12 @@ public class AuthService {
 
         userRepository.save(user);
         String token = generateVerificationToken(user);
-        NotificationEmail notificationEmail= new NotificationEmail("Reddit: Please Activate your Account", user.getEmail(), "Thank you for signing up to Reddit /n"+
-                "Please click on the below link to activate your account: "+
-                "http://localhost:8080/reddit/auth/activateAccount/"+token);
-        mailService.sendMail(notificationEmail);
+        //Use the below config along with google SMTP config
+//        NotificationEmail notificationEmail= new NotificationEmail("Reddit: Please Activate your Account", user.getEmail(), "Thank you for signing up to Reddit /n"+
+//                "Please click on the below link to activate your account: "+
+//                appConfig.getUrl()+"auth/activateAccount/"+token);
+//        mailService.sendMail(notificationEmail);
+        activateAccount(token);
         return new ResponseEntity<>("User Registration Successful", HttpStatus.OK);
     }
 

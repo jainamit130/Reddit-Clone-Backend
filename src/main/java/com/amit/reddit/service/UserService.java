@@ -1,8 +1,11 @@
 package com.amit.reddit.service;
 
+import com.amit.reddit.dto.CommentDto;
+import com.amit.reddit.dto.PostResponseDto;
 import com.amit.reddit.dto.UserProfileDto;
 import com.amit.reddit.dto.UserSearchResponse;
 import com.amit.reddit.exceptions.redditUserNotFoundException;
+import com.amit.reddit.model.Post;
 import com.amit.reddit.model.User;
 import com.amit.reddit.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -24,19 +27,23 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserProfileDto getUserProfileDetails(Long id) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByUserIdAndVerifiedTrue(id)
                 .orElseThrow(()->new redditUserNotFoundException());
+        List<PostResponseDto> posts = postService.getPostsByUsername(user.getUsername());
+        List<CommentDto> comments = commentService.getAllUserComments(user.getUsername());
         return UserProfileDto.builder()
-               .posts(postService.getPostsByUsername(user.getUsername()))
-               .comments(commentService.getAllUserComments(user.getUsername()))
+                .userName(user.getUsername())
+                .numberOfPosts(posts.size())
+                .numberOfComments(comments.size())
+                .joinDate(user.getCreationDate())
+               .posts(posts)
+               .comments(comments)
                .build();
     }
 
     public List<UserSearchResponse> getAllSearchedUsers(String searchQuery) {
         List<User> searchedUsers = userRepository.findByUsernameContainsAndVerifiedTrue(searchQuery);
-        return searchedUsers.stream().map(user -> {
-               return UserSearchResponse.builder().userId(user.getUserId())
-               .joinDate(user.getCreationDate()).userName(user.getUsername()).build();
-        }).collect(Collectors.toList());
+        return searchedUsers.stream().map(user -> UserSearchResponse.builder().userId(user.getUserId())
+        .joinDate(user.getCreationDate()).userName(user.getUsername()).build()).collect(Collectors.toList());
     }
 }

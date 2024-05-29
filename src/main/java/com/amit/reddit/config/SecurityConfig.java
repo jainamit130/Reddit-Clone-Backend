@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("reddit/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"reddit/posts/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "reddit/community/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "reddit/comments/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/reddit/community/getUserCommunities").authenticated()
                         .requestMatchers("/v3/api-docs/**","/swagger-ui/**")
                         .permitAll()

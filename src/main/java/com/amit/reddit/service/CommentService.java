@@ -38,7 +38,7 @@ public class CommentService {
     public CommentDto create(CommentDto commentDto) {
         Post post = postService.getPostOfComment(commentDto.getPostId());
         User user=authService.getCurrentUser();
-        if(!commentDto.getUsername().equals(user.getUsername())){
+        if(!commentDto.getUsername().equalsIgnoreCase(user.getUsername())){
             throw new redditException("Sorry! something went wrong!");
         }
         Comment comment = commentMapper.mapDtoToComment(commentDto,post,user);
@@ -111,7 +111,7 @@ public class CommentService {
     }
 
     public void sendCommentNotificationEmail(NotificationEmail notificationEmail){
-        mailService.sendMail(notificationEmail);
+//        mailService.sendMail(notificationEmail);
     }
 
     public void deleteComment(Long postId,Long commentId) {

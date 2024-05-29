@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -12,6 +13,10 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class UserProfileDto {
+    private String userName;
+    private Integer numberOfPosts;
+    private Integer numberOfComments;
+    private Instant joinDate;
     private List<PostResponseDto> posts;
     private List<CommentDto> comments;
 }

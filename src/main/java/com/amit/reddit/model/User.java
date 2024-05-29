@@ -44,7 +44,6 @@ public class User implements UserDetails {
     private String password;
 
     @Email
-    @NotEmpty(message = "Email is required")
     private String email;
 
     private Instant creationDate;
