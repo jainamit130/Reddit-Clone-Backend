@@ -24,6 +24,7 @@ public class CommunityController {
 
     @GetMapping("/communitySearch/{startsWith}")
     public ResponseEntity<List<CommunitySearchDto>> communitySearch(@PathVariable String startsWith){
+        System.out.println("Broo it comes here: "+startsWith);
         return new ResponseEntity<List<CommunitySearchDto>>(communityService.search(startsWith),HttpStatus.OK);
     }
 
