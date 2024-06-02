@@ -10,20 +10,24 @@ import com.amit.reddit.model.*;
 import com.amit.reddit.repository.CommunityRepository;
 import com.amit.reddit.repository.PostRepository;
 import com.amit.reddit.repository.UserRepository;
-import com.amit.reddit.repository.VoteRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 @Transactional
 @Slf4j
+//@ConfigurationProperties(prefix = "reddit")
 public class PostService {
+    private final Integer recentlyOpenedPostsSize=10;
     private final CommunityRepository communityRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -48,10 +52,15 @@ public class PostService {
         return postResponse;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostResponseDto getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new redditException("Post not found!"));
+        if(authService.isUserLoggedIn()) {
+            User user = authService.getCurrentUser();
+            user.addRecentlyOpenedPost(post);
+            userRepository.save(user);
+        }
         PostResponseDto postResponse = postToPostResponse(post);
         return postResponse;
     }
@@ -60,9 +69,7 @@ public class PostService {
     public List<PostResponseDto> getAllPosts() {
         List<PostResponseDto> posts=postRepository.findAll()
                 .stream()
-                .map(post -> {
-                    return postToPostResponse(post);
-                })
+                .map(post -> postToPostResponse(post))
                 .collect(Collectors.toList());
         return posts;
     }
@@ -73,9 +80,7 @@ public class PostService {
                 .orElseThrow(() -> new communityNotFoundException(id.toString()));
         List<PostResponseDto> posts=postRepository.findAllByCommunity(community)
                 .stream()
-                .map(post -> {
-                    return postToPostResponse(post);
-                })
+                .map(post -> postToPostResponse(post))
                 .collect(Collectors.toList());
         return posts;
     }
@@ -86,9 +91,7 @@ public class PostService {
                 .orElseThrow(() -> new redditUserNotFoundException(username));
         List<PostResponseDto> posts=postRepository.findAllByUser(user)
                 .stream()
-                .map(post -> {
-                    return postToPostResponse(post);
-                })
+                .map(post -> postToPostResponse(post))
                 .collect(Collectors.toList());
         return posts;
     }

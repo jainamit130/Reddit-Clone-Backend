@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class UserService {
     private final PostService postService;
     private final CommentService commentService;
     private final UserRepository userRepository;
+    private final AuthService authService;
 
     public UserProfileDto getUserProfileDetails(Long id) {
         User user = userRepository.findByUserIdAndVerifiedTrue(id)
@@ -41,9 +43,27 @@ public class UserService {
                .build();
     }
 
+    public void clearRecentPostList(){
+        if(authService.isUserLoggedIn()){
+            User user = authService.getCurrentUser();
+            user.setRecentlyOpenedPosts(new LinkedList<>());
+        } else {
+            throw new redditUserNotFoundException();
+        }
+    }
+
     public List<UserSearchResponse> getAllSearchedUsers(String searchQuery) {
         List<User> searchedUsers = userRepository.findByUsernameContainsAndVerifiedTrue(searchQuery);
         return searchedUsers.stream().map(user -> UserSearchResponse.builder().userId(user.getUserId())
-        .joinDate(user.getCreationDate()).userName(user.getUsername()).build()).collect(Collectors.toList());
+                .joinDate(user.getCreationDate()).userName(user.getUsername()).build()).collect(Collectors.toList());
+    }
+
+    public List<Post> getUserHistory() {
+        if(authService.isUserLoggedIn()){
+            User user=authService.getCurrentUser();
+            return user.getRecentlyOpenedPosts();
+        } else {
+            throw new redditUserNotFoundException();
+        }
     }
 }

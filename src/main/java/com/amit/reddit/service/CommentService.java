@@ -11,6 +11,8 @@ import com.amit.reddit.repository.PostRepository;
 import com.amit.reddit.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,11 +23,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Transactional
 @Slf4j
+//@ConfigurationProperties(prefix = "reddit.popularComments")
 public class CommentService {
 
-//    @Value("${popular.comments.threshold}")
-//    private int POPULAR_COMMENTS_VOTE_THRESHOLD;
-
+    private final Integer voteThreshold=3;
     private final String VIEW_REPLY="";
     private final CommentRepository commentRepository;
     private final PostService postService;
@@ -95,7 +96,7 @@ public class CommentService {
         CommentDto commentWithLayersOfReplies=commentToCommentResponse(post,comment);
         List<Comment> replies = comment.getReplies();
         for(Comment reply: replies){
-            if(numberOfRepliesSection>0 || (defaultFetch && (reply.getVotes() != null && reply.getVotes() > 3)))
+            if(numberOfRepliesSection>0 || (defaultFetch && (reply.getVotes() != null && reply.getVotes() > voteThreshold)))
                 commentWithLayersOfReplies.addReply(getCommentDtoWithReplies(post,reply,numberOfRepliesSection-1,defaultFetch));
         }
         return commentWithLayersOfReplies;

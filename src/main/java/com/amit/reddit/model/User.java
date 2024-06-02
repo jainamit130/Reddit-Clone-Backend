@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -43,6 +43,28 @@ public class User implements UserDetails {
 
     @NotBlank(message = "Password is required")
     private String password;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "recently_opened_posts",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "post_id")
+    )
+    private List<Post> recentlyOpenedPosts = new LinkedList<>();
+
+    public void addRecentlyOpenedPost(Post post) {
+        recentlyOpenedPosts.remove(post); // Remove if it already exists
+
+        if (recentlyOpenedPosts.size() >= 10) {
+            recentlyOpenedPosts.remove(0); // Remove the oldest post if list exceeds the limit
+        }
+
+        recentlyOpenedPosts.add(post); // Add the new post to the end
+    }
+
+    public List<Post> getRecentlyOpenedPosts() {
+        return recentlyOpenedPosts == null ? new LinkedList<>() : recentlyOpenedPosts;
+    }
 
     @Email
     private String email;

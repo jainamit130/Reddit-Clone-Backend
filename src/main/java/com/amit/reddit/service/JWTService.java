@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+//@ConfigurationProperties(prefix = "reddit.jwt")
 public class JWTService {
 
-    @Value("${jwt.private.key}")
-    private String SECRET_KEY;
-
-    @Value("${jwt.key.expriration}")
-    private Integer JWT_EXPIRATION;
+    private final String privateKey="3BeunKCYFsLqESTSuHgRQKtsXmBy5scuegS2DZc7YcTm7LPpt98gz78r5Zy2gGAS9JA66mjWRXXoA7scwDwoPGPbzdJ3neLJR4S8XnbPgUg4Ln2BUFSmSJFLoGYCjRHZhEKuNwyPE4Gbs4BumZTS9P2z4UaWkMCUJcjABFR3mwb9g6fKjkd7EaJgUYMZnNen7T7foG9nWzUnzH77CamJKxNUYD2uGuxz6oB5aaXPYCLWYHpNhQBHXLkTqmu7zgHD";
+    private final Integer expiration=1200000;
 
     public String extractUserName(String token) {
         return extractClaim(token,Claims::getSubject);
@@ -68,11 +67,11 @@ public class JWTService {
     }
 
     public Instant getExpirationTime(){
-        return Instant.now().plusMillis(JWT_EXPIRATION);
+        return Instant.now().plusMillis(expiration);
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(privateKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
