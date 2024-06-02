@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
+import javafx.util.Pair;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -33,6 +34,8 @@ public class User implements UserDetails {
     @ManyToMany(fetch = FetchType.LAZY)
     private List<Community> communities;
 
+    private List<Pair<Instant,Post>> recentlyOpenedPosts;
+
     @JsonIgnore
     @OneToMany(mappedBy = "creatorUser", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Community> createdCommunities;
@@ -50,6 +53,12 @@ public class User implements UserDetails {
     private Instant creationDate;
 
     private boolean verified;
+
+    public List<Pair<Instant,Post>> getRecentlyOpenedPosts(){
+        if(recentlyOpenedPosts==null)
+            return new ArrayList<>();
+        return recentlyOpenedPosts;
+    }
 
     @Enumerated(EnumType.STRING)
     private Role role;

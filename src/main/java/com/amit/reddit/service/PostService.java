@@ -10,13 +10,17 @@ import com.amit.reddit.model.*;
 import com.amit.reddit.repository.CommunityRepository;
 import com.amit.reddit.repository.PostRepository;
 import com.amit.reddit.repository.UserRepository;
-import com.amit.reddit.repository.VoteRepository;
+import javafx.util.Pair;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +28,8 @@ import java.util.stream.Collectors;
 @Transactional
 @Slf4j
 public class PostService {
+//    @Value("${recentlyOpened.posts.size}")
+    private final Integer RECENT_POSTS_SIZE=10;
     private final CommunityRepository communityRepository;
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -48,10 +54,26 @@ public class PostService {
         return postResponse;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostResponseDto getPost(Long id) {
+        User user=authService.getCurrentUser();
+        List<Pair<Instant, Post>> recentlyOpenedPosts = user.getRecentlyOpenedPosts();
+        PriorityQueue<Pair<Instant, Post>> pq = new PriorityQueue<>(new Comparator<Pair<Instant, Post>>() {
+            @Override
+            public int compare(Pair<Instant, Post> p1, Pair<Instant, Post> p2) {
+                return p1.getKey().compareTo(p2.getKey());  // Sort based on the Instant value
+            }
+        });
+        pq.addAll(recentlyOpenedPosts);
+
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new redditException("Post not found!"));
+        if(pq.size()==RECENT_POSTS_SIZE){
+            pq.remove();
+        }
+        pq.add(new Pair<>(Instant.now(),post));
+        user.setRecentlyOpenedPosts(pq.stream().collect(Collectors.toList()));
+        userRepository.save(user);
         PostResponseDto postResponse = postToPostResponse(post);
         return postResponse;
     }
@@ -73,9 +95,7 @@ public class PostService {
                 .orElseThrow(() -> new communityNotFoundException(id.toString()));
         List<PostResponseDto> posts=postRepository.findAllByCommunity(community)
                 .stream()
-                .map(post -> {
-                    return postToPostResponse(post);
-                })
+                .map(post -> postToPostResponse(post))
                 .collect(Collectors.toList());
         return posts;
     }
