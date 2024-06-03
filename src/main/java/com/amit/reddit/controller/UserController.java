@@ -1,5 +1,6 @@
 package com.amit.reddit.controller;
 
+import com.amit.reddit.dto.PostResponseDto;
 import com.amit.reddit.dto.UserProfileDto;
 import com.amit.reddit.model.Post;
 import com.amit.reddit.service.UserService;
@@ -27,7 +28,7 @@ public class UserController {
 
 
     @GetMapping("/getUserHistory")
-    public ResponseEntity<List<Post>> getUserHistory(){
+    public ResponseEntity<List<PostResponseDto>> getUserHistory(){
         return new ResponseEntity<>(userService.getUserHistory(),HttpStatus.OK);
     }
 

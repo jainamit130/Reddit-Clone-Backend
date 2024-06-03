@@ -58,10 +58,13 @@ public class UserService {
                 .joinDate(user.getCreationDate()).userName(user.getUsername()).build()).collect(Collectors.toList());
     }
 
-    public List<Post> getUserHistory() {
+    public List<PostResponseDto> getUserHistory() {
         if(authService.isUserLoggedIn()){
             User user=authService.getCurrentUser();
-            return user.getRecentlyOpenedPosts();
+            return user.getRecentlyOpenedPosts()
+                    .stream()
+                    .map(post -> postService.postToPostResponse(post))
+                    .collect(Collectors.toList());
         } else {
             throw new redditUserNotFoundException();
         }
