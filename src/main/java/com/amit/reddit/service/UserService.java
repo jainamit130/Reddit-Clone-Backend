@@ -56,7 +56,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public List<UserSearchResponse> getAllSearchedUsers(String searchQuery) {
-        List<User> searchedUsers = userRepository.findByUsernameContainsAndVerifiedTrue(searchQuery);
+        List<User> searchedUsers = userRepository.findByUsernameContainsAndVerifiedTrueIgnoreCase(searchQuery);
         return searchedUsers.stream().map(user -> UserSearchResponse.builder().userId(user.getUserId())
                 .joinDate(user.getCreationDate()).userName(user.getUsername()).build()).collect(Collectors.toList());
     }
