@@ -30,8 +30,7 @@ public class Community {
     private String communityName;
 
     @NotBlank(message = "Description is required")
-    @Lob
-    @Column(length = 1024)
+    @Column(columnDefinition = "TEXT",length = 1024)
     private String description;
 
     @JsonIgnore

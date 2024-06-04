@@ -15,11 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.Comparator;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 @AllArgsConstructor
@@ -45,7 +44,9 @@ public class PostService {
         post.setVotes(1);//On creating the post the vote is set by defualt to 1
         post.setComments(0);
         savePost(post);
+        currentUser.addPost(post);
         community.addPost(post);
+        userRepository.save(currentUser);
         communityRepository.save(community);
         voteService.saveDefaultVote(post);
         PostResponseDto postResponse = postToPostResponse(post);
@@ -63,6 +64,24 @@ public class PostService {
         }
         PostResponseDto postResponse = postToPostResponse(post);
         return postResponse;
+    }
+
+    public void deletePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(()->new redditException("Sorry post does not exist"));
+        User user= authService.getCurrentUser();
+        User postUser = post.getUser();
+        if(user.equals(postUser)){
+            post.setPostName("deleted");
+            post.setDescription("deleted");
+            user.deletePost(post);
+            userRepository.save(user);
+//            post.setDeleted(true);
+            postRepository.save(post);
+        } else {
+            throw new redditException("No such posts exists for user: "+user.getUsername());
+        }
+        return;
     }
 
     @Transactional(readOnly = true)
@@ -118,5 +137,29 @@ public class PostService {
 
     public void savePost(Post post) {
         postRepository.save(post);
+    }
+
+    public PostResponseDto edit(PostRequestDto postDto) {
+        if(authService.isUserLoggedIn()){
+            User commentUser = userRepository.findByUsername(postDto.getUserName())
+                    .orElseThrow(() -> new redditUserNotFoundException(postDto.getUserName()));
+            if(!authService.getCurrentUser().equals(commentUser)){
+                throw new redditUserNotFoundException();
+            }
+        } else {
+            throw new redditException("You need to Login!");
+        }
+        Post post = postRepository.findById(postDto.getPostId())
+                .orElseThrow(() -> new redditException("Post not found!"));
+        post.setDescription(postDto.getDescription());
+        postRepository.save(post);
+        return postToPostResponse(post);
+    }
+
+    public List<PostResponseDto> getUserPosts() {
+        return authService.getCurrentUser().getPosts()
+                .stream()
+                .map(this::postToPostResponse)
+                .collect(toList());
     }
 }

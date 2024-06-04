@@ -5,7 +5,6 @@ import com.amit.reddit.dto.PostResponseDto;
 import com.amit.reddit.dto.UserProfileDto;
 import com.amit.reddit.dto.UserSearchResponse;
 import com.amit.reddit.exceptions.redditUserNotFoundException;
-import com.amit.reddit.model.Post;
 import com.amit.reddit.model.User;
 import com.amit.reddit.repository.UserRepository;
 import lombok.AllArgsConstructor;
@@ -28,10 +27,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final AuthService authService;
 
+    @Transactional(readOnly = true)
     public UserProfileDto getUserProfileDetails(Long id) {
         User user = userRepository.findByUserIdAndVerifiedTrue(id)
                 .orElseThrow(()->new redditUserNotFoundException());
-        List<PostResponseDto> posts = postService.getPostsByUsername(user.getUsername());
+        List<PostResponseDto> posts = user.getPosts().stream().map(postService::postToPostResponse).collect(Collectors.toList());
         List<CommentDto> comments = commentService.getAllUserComments(user.getUsername());
         return UserProfileDto.builder()
                 .userName(user.getUsername())
@@ -43,15 +43,18 @@ public class UserService {
                .build();
     }
 
+    @Transactional
     public void clearRecentPostList(){
         if(authService.isUserLoggedIn()){
             User user = authService.getCurrentUser();
             user.setRecentlyOpenedPosts(new LinkedList<>());
+            userRepository.save(user);
         } else {
             throw new redditUserNotFoundException();
         }
     }
 
+    @Transactional(readOnly = true)
     public List<UserSearchResponse> getAllSearchedUsers(String searchQuery) {
         List<User> searchedUsers = userRepository.findByUsernameContainsAndVerifiedTrue(searchQuery);
         return searchedUsers.stream().map(user -> UserSearchResponse.builder().userId(user.getUserId())

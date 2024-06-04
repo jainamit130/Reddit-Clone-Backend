@@ -7,12 +7,9 @@ import com.amit.reddit.exceptions.redditUserNotFoundException;
 import com.amit.reddit.mapper.CommentMapper;
 import com.amit.reddit.model.*;
 import com.amit.reddit.repository.CommentRepository;
-import com.amit.reddit.repository.PostRepository;
 import com.amit.reddit.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,14 +20,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Transactional
 @Slf4j
-//@ConfigurationProperties(prefix = "reddit.popularComments")
 public class CommentService {
 
     private final Integer voteThreshold=3;
     private final String VIEW_REPLY="";
     private final CommentRepository commentRepository;
-    private final PostService postService;
     private final UserRepository userRepository;
+    private final PostService postService;
     private final VoteService voteService;
     private final AuthService authService;
     private final CommentMapper commentMapper;
@@ -104,7 +100,7 @@ public class CommentService {
 
     public List<CommentDto> getAllUserComments(String userName) {
         User user = userRepository.findByUsername(userName)
-                .orElseThrow(() -> new redditUserNotFoundException(userName));
+                .orElseThrow(()-> new redditUserNotFoundException());
         return commentRepository.findAllByUserAndIsDeletedFalse(user)
                 .stream()
                 .map((comment)->commentMapper.mapCommentToDto(comment))
@@ -161,6 +157,15 @@ public class CommentService {
     }
 
     public CommentDto edit(CommentDto commentDto) {
+        if(authService.isUserLoggedIn()){
+            User commentUser = userRepository.findByUsername(commentDto.getUsername())
+                    .orElseThrow(()-> new redditUserNotFoundException(commentDto.getUsername()));
+            if(!authService.getCurrentUser().equals(commentUser)){
+                throw new redditUserNotFoundException();
+            }
+        } else {
+            throw new redditException("You need to Login!");
+        }
         Comment comment=getComment(commentDto.getCommentId());
         comment.setComment(commentDto.getComment());
         commentRepository.save(comment);

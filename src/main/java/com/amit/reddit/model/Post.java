@@ -25,8 +25,7 @@ public class Post {
     private String postName;
 
     @Nullable
-    @Lob
-    @Column(length = 1024)
+    @Column(columnDefinition = "TEXT",length = 1024)
     private String description;
 
     private Integer votes;
@@ -44,4 +43,6 @@ public class Post {
     private Community community;
 
     private Integer comments;
+
+//    private boolean isDeleted;
 }

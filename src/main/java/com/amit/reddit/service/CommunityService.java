@@ -22,6 +22,7 @@ import static java.util.stream.Collectors.toList;
 @Service
 @AllArgsConstructor
 @Slf4j
+@Transactional
 public class CommunityService {
 
     private final CommunityRepository communityRepository;
@@ -47,7 +48,6 @@ public class CommunityService {
         return responseCommunityDto;
     }
 
-    @Transactional(readOnly = true)
     public List<CommunityDto> getAll() {
         return communityRepository.findAll()
                 .stream()
@@ -55,7 +55,6 @@ public class CommunityService {
                 .collect(toList());
     }
 
-    @Transactional(readOnly = true)
     public List<CommunityDto> getUserCommunities() {
         return authService.getCurrentUser().getCommunities()
                 .stream()
@@ -63,7 +62,6 @@ public class CommunityService {
                 .collect(toList());
     }
 
-    @Transactional(readOnly = true)
     public CommunityDto getCommunity(Long id) {
         Community community = communityRepository.findById(id)
                 .orElseThrow(() -> new redditException("No results found"));
@@ -77,7 +75,6 @@ public class CommunityService {
         return communityDto;
     }
 
-    @Transactional(readOnly = true)
     public CommunityDto getCommunityWithPosts(Long id) {
         Community community = communityRepository.findById(id)
                 .orElseThrow(() -> new redditException("No results found"));

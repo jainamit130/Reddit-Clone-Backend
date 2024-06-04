@@ -80,6 +80,10 @@ public class User implements UserDetails {
         communities.add(community);
     }
 
+    public void addPost(Post post){
+        posts.add(post);
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
@@ -108,4 +112,6 @@ public class User implements UserDetails {
     public void leaveCommunity(Community community) {
         communities.remove(community);
     }
+
+    public void deletePost(Post post) { posts.remove(post); }
 }
