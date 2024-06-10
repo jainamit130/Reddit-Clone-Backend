@@ -76,7 +76,7 @@ public class PostService {
             post.setDescription("deleted");
             user.deletePost(post);
             userRepository.save(user);
-//            post.setDeleted(true);
+            post.setDeleted(true);
             postRepository.save(post);
         } else {
             throw new redditException("No such posts exists for user: "+user.getUsername());
@@ -86,7 +86,7 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public List<PostResponseDto> getAllPosts() {
-        List<PostResponseDto> posts=postRepository.findAll()
+        List<PostResponseDto> posts=postRepository.findAllByIsDeletedFalse()
                 .stream()
                 .map(post -> postToPostResponse(post))
                 .collect(Collectors.toList());

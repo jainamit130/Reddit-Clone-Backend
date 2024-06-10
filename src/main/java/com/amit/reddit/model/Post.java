@@ -44,5 +44,5 @@ public class Post {
 
     private Integer comments;
 
-//    private boolean isDeleted;
+    private boolean isDeleted;
 }

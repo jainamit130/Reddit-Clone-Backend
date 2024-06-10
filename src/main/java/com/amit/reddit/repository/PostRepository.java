@@ -17,6 +17,8 @@ public interface PostRepository extends JpaRepository<Post,Long> {
 
     List<Post> findAllByUser(User user);
 
+    List<Post> findAllByIsDeletedFalse();
+
     @Query(value = "SELECT * FROM Post p WHERE lower(strip_html_tags(p.description)) LIKE lower(concat('%', :searchQuery, '%')) OR lower(p.post_Name) LIKE lower(concat('%', :searchQuery, '%'))", nativeQuery = true)
     List<Post> findByDescriptionContainingOrPostNameContaining(@Param("searchQuery") String searchQuery);
 }
