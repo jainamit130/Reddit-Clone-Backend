@@ -36,11 +36,12 @@ This project is a clone of Reddit, built to practice and demonstrate skills in f
 ## Installation
 
 ### Clone the Repositories
-```bash
+
 git clone https://github.com/jainamit130/Reddit-Clone-Client.git
 git clone https://github.com/jainamit130/Reddit-Clone-Backend.git
 
-### Backend Setup
+###  Backend Setup
+
 1.  Navigate to the backend directory:
     cd Reddit-Clone-Backend
 
