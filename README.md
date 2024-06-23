@@ -3,8 +3,8 @@
 - Backend Repository: https://github.com/jainamit130/Reddit-Clone-Backend
 - Frontend Repository: https://github.com/jainamit130/Reddit-Clone-Client
 
-[![GIFMaker_me (1)](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/4c007b59-b44d-4b1e-beed-0edee6f30ab8)](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/4c007b59-b44d-4b1e-beed-0edee6f30ab8
-)
+
+![GIFMaker_me (1)](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/91cbe62d-9383-42cd-94f2-bc9cdb148caa)
 
 
 ## Table of Contents
