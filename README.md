@@ -37,8 +37,9 @@ This project is a clone of Reddit, built to practice and demonstrate skills in f
 
 ### Clone the Repositories
 
-- git clone https://github.com/jainamit130/Reddit-Clone-Client.git
-- git clone https://github.com/jainamit130/Reddit-Clone-Backend.git
+git clone https://github.com/jainamit130/Reddit-Clone-Client.git
+
+git clone https://github.com/jainamit130/Reddit-Clone-Backend.git
 
 ###  Backend Setup
 
