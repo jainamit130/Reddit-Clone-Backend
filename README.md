@@ -4,26 +4,33 @@
 - Frontend Repository: https://github.com/jainamit130/Reddit-Clone-Client
 
 
+# Tutorial
+
+- User Registration
+
 ![First Gif (Login and Sign up) (2) (1)](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/cc6ec0ae-bfa2-4f99-8c54-f5cc13ecbb6a)
 
-User Registration
+
+- Post and Community Actions
 
 ![secondVideo (1)](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/2876205d-ee20-4273-8bab-5c24e46b040d)
 
 
-Post and Community Actions
+
+- Reddit Search
 
 
 ![video3](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/faec471d-a3bd-4bca-a82e-dc6ac9d01381)
 
 
-Reddit Search
+
+- User Profiles
 
 
 ![fourth](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/4b111eb2-a251-4c8f-923a-ffe39af98fc0)
 
 
-User Profiles
+
 
 ## Table of Contents
 - [Introduction](#introduction)
