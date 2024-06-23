@@ -4,7 +4,7 @@
 - Frontend Repository: https://github.com/jainamit130/Reddit-Clone-Client
 
 
-https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/95e29f38-efdf-49d2-af88-3635e3393eb4
+![First Gif (Login and Sign up) (2) (1)](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/cc6ec0ae-bfa2-4f99-8c54-f5cc13ecbb6a)
 
 
 ## Table of Contents
