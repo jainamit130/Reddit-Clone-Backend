@@ -1,7 +1,7 @@
 # Reddit Clone
 
-Backend Repository: https://github.com/jainamit130/Reddit-Clone-Backend
-Frontend Repository: https://github.com/jainamit130/Reddit-Clone-Client
+- Backend Repository: https://github.com/jainamit130/Reddit-Clone-Backend
+- Frontend Repository: https://github.com/jainamit130/Reddit-Clone-Client
 
 ## Table of Contents
 - [Introduction](#introduction)
