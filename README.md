@@ -1,4 +1,4 @@
-![video3](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/cb56be15-fb15-4446-a346-ddeea34fc28a)# Reddit Clone
+# Reddit Clone
 
 - Backend Repository: https://github.com/jainamit130/Reddit-Clone-Backend
 - Frontend Repository: https://github.com/jainamit130/Reddit-Clone-Client
