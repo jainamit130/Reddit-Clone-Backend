@@ -4,8 +4,8 @@
 - Frontend Repository: https://github.com/jainamit130/Reddit-Clone-Client
 
 
-[![GIFMaker_me (1)](https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/91cbe62d-9383-42cd-94f2-bc9cdb148caa)
-](https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTc1d2t6Nnh3aW94NjVrbXc4MnZsdXFvcWF5MGU4cHRhcHBkYWF6ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/cvOndsD8yUSmOjzHHb/giphy.gif)
+https://github.com/jainamit130/Reddit-Clone-Backend/assets/87203912/95e29f38-efdf-49d2-af88-3635e3393eb4
+
 
 ## Table of Contents
 - [Introduction](#introduction)
