@@ -57,11 +57,11 @@ public class PostService {
     public PostResponseDto getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new redditException("Post not found!"));
-        if(authService.isUserLoggedIn()) {
-            User user = authService.getCurrentUser();
-            user.addRecentlyOpenedPost(post);
-            userRepository.save(user);
-        }
+//        if(authService.isUserLoggedIn()) {
+//            User user = authService.getCurrentUser();
+//            user.addRecentlyOpenedPost(post);
+//            userRepository.save(user);
+//        }
         PostResponseDto postResponse = postToPostResponse(post);
         return postResponse;
     }
