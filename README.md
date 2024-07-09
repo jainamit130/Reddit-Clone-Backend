@@ -53,8 +53,8 @@ This project is a clone of Reddit, built to practice and demonstrate skills in f
 ## Technology Stack
 - **Frontend**: Angular
 - **Backend**: Spring Boot
-- **Database**: MongoDB
-- **Authentication**: JWT
+- **Database**: MySQL / PostgreSQL
+- **Authentication**: JWT + Refresh Tokens
 
 ## Installation
 
@@ -105,12 +105,14 @@ git clone https://github.com/jainamit130/Reddit-Clone-Backend.git
 2.  POST /api/auth/login - Log in a user
 
 ### Posts
-1.  GET /api/posts - Get all posts
-2.  POST /api/posts - Create a new post
-3.  GET /api/posts/:id - Get a single post by ID
-4.  PUT /api/posts/:id - Update a post by ID
-5.  DELETE /api/posts/:id - Delete a post by ID
+1.  GET /reddit/posts - Get all posts
+2.  POST /reddit/posts - Create a new post
+3.  GET /reddit/posts/:id - Get a single post by ID
+4.  PUT /reddit/posts/:id - Update a post by ID
+5.  DELETE /reddit/posts/:id - Delete a post by ID
 
 ### Comments
-1.  POST /api/posts/:postId/comments - Add a comment to a post
-2.  GET /api/posts/:postId/comments - Get comments for a post
+1.  POST /reddit/posts/:postId/comments - Add a comment to a post
+2.  GET /reddit/posts/:postId/comments - Get comments for a post
+
+
