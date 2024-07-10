@@ -51,14 +51,14 @@ public class CommunityService {
     public List<CommunityDto> getAll() {
         return communityRepository.findAll()
                 .stream()
-                .map(communityMapper::mapCommunityToDto)
+                .map(community -> CommunityDto.builder().numberOfMembers(community.getNumberOfMembers()).numberOfPosts(community.getNumberOfPosts()).communityName(community.getCommunityName()).communityId(community.getCommunityId()).build())
                 .collect(toList());
     }
 
     public List<CommunityDto> getUserCommunities() {
         return authService.getCurrentUser().getCommunities()
                 .stream()
-                .map(communityMapper::mapCommunityToDto)
+                .map(community -> CommunityDto.builder().numberOfMembers(community.getNumberOfMembers()).communityName(community.getCommunityName()).communityId(community.getCommunityId()).build())
                 .collect(toList());
     }
 
@@ -71,14 +71,14 @@ public class CommunityService {
     public CommunityDto getCommunityOfPost(Long postId) {
         Community community = communityRepository.findByPosts_PostId(postId)
                 .orElseThrow(() -> new redditException("No results found"));
-        CommunityDto communityDto = communityMapper.mapCommunityToDto(community);
+        CommunityDto communityDto = CommunityDto.builder().communityId(community.getCommunityId()).communityName(community.getCommunityName()).description(community.getDescription()).numberOfMembers(community.getNumberOfMembers()).numberOfPosts(community.getNumberOfPosts()).build();
         return communityDto;
     }
 
     public CommunityDto getCommunityWithPosts(Long id) {
         Community community = communityRepository.findById(id)
                 .orElseThrow(() -> new redditException("No results found"));
-        CommunityDto communityDto = communityMapper.mapCommunityToDto(community);
+        CommunityDto communityDto = CommunityDto.builder().communityId(community.getCommunityId()).communityName(community.getCommunityName()).description(community.getDescription()).numberOfMembers(community.getNumberOfMembers()).numberOfPosts(community.getNumberOfPosts()).build();
         communityDto.setPosts(community.getPosts().stream().map(post -> postService.postToPostResponse(post)).collect(Collectors.toList()));
         return communityDto;
     }
@@ -123,7 +123,7 @@ public class CommunityService {
     public List<CommunityDto> getAllSearchedCommunities(String searchQuery) {
         return communityRepository.findAllByDescriptionOrCommunityNameContains(searchQuery.toLowerCase())
                 .stream()
-                .map(community -> communityMapper.mapCommunityToDto(community))
+                .map(community -> CommunityDto.builder().numberOfMembers(community.getNumberOfMembers()).communityName(community.getCommunityName()).communityId(community.getCommunityId()).description(community.getDescription()).build())
                 .collect(Collectors.toList());
     }
 }

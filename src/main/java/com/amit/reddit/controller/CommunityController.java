@@ -54,8 +54,9 @@ public class CommunityController {
     }
 
     @GetMapping("/getAllCommunities")
-    public ResponseEntity<List<CommunityDto>> getAllCommunities(){
-        return new ResponseEntity<>(communityService.getAll(), HttpStatus.OK);
+    public ResponseEntity<List<CommunityDto>> getAllCommunities() {
+        List<CommunityDto> communities = communityService.getAll();
+        return new ResponseEntity<>(communities, HttpStatus.OK);
     }
 
     @GetMapping("/getUserCommunities")

@@ -159,7 +159,7 @@ public class PostService {
     public List<PostResponseDto> getUserPosts() {
         return authService.getCurrentUser().getPosts()
                 .stream()
-                .map(this::postToPostResponse)
+                .map(post -> PostResponseDto.builder().postId(post.getPostId()).build())
                 .collect(toList());
     }
 }
